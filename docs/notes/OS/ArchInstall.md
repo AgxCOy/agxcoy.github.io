@@ -66,15 +66,7 @@ U 盘启动 PE 相信很多人都操作过，或者看过教程。LiveCD 也是�
 
 ## 二、硬盘分区、格式化和挂载
 
-我目前与律回一样采用`ext4`文件系统，相应地快照用的是`RSYNC`。你也可以试试 Miku 指南介绍的`Btrfs`分区方案：
-
-- :new: [全新安装](https://arch.icekylin.online/guide/rookie/basic-install-detail#%F0%9F%86%95-%E5%85%A8%E6%96%B0%E5%AE%89%E8%A3%85)
-- [7. 分区和格式化（使用 Btrfs 文件系统）](https://arch.icekylin.online/guide/rookie/basic-install.html#_7-%E5%88%86%E5%8C%BA%E5%92%8C%E6%A0%BC%E5%BC%8F%E5%8C%96-%E4%BD%BF%E7%94%A8-btrfs-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F)
-
-> 我个人不太喜欢 Miku 把 EFI 分区和其他 Linux 分区拆开讲解。  
-> 但「分区是这样的。Kariko Lin 只需清空硬盘全新安装就可以，而 Miku 演示双系统要考虑的情况就很多了」。
-
-分区用`fdisk`和`cfdisk`都可以。前者与 Diskpart 类似，但律回指南并未过多叙述操作流程，我会在下面附上；后者提供了更为友好的 CUI，参见 Miku 指南。
+由于`ext4`调整分区大小并不是很方便，我改用了`Btrfs`文件系统，备份则采用`RSYNC`异盘同步和`Btrfs`同盘快照。你仍可以参照律回指南[第二章「分区、格式化与挂载」](https://www.glowmem.com/archives/archlinux-note#toc-head-3)去操作。
 
 ::: details 补充一下律回的 fdisk 操作流程
 > 注：下列内容也只考虑全新安装。
@@ -102,6 +94,11 @@ U 盘启动 PE 相信很多人都操作过，或者看过教程。LiveCD 也是�
 - `w`：保存并应用分区表更改。DiskGenius 改分区也不是设置完立马生效的嘛。
 :::
 
+Miku 指南则由于假定保留 Windows 系统分区，对分区方案的介绍实际上拆成了两部分：
+
+- :new: [全新安装](https://arch.icekylin.online/guide/rookie/basic-install-detail#%F0%9F%86%95-%E5%85%A8%E6%96%B0%E5%AE%89%E8%A3%85)
+- [7. 分区和格式化（使用 Btrfs 文件系统）](https://arch.icekylin.online/guide/rookie/basic-install.html#_7-%E5%88%86%E5%8C%BA%E5%92%8C%E6%A0%BC%E5%BC%8F%E5%8C%96-%E4%BD%BF%E7%94%A8-btrfs-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F)
+
 > [!tip]
 > 我个人的分区方案是：
 > - ESP：挂载`/boot`
@@ -110,7 +107,7 @@ U 盘启动 PE 相信很多人都操作过，或者看过教程。LiveCD 也是�
 >
 > 这么分可以相对灵活地调整交换分区，因为总体来说调整分区右端比调整左端容易。
 
-完事了格式化、挂载文件系统即可。两篇指南对此都有叙述。
+分区用`fdisk`和`cfdisk`都可以。完事了格式化、挂载文件系统即可。两篇指南对此都有叙述。
 
 ## 三、安装系统
 

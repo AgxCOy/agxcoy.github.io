@@ -76,6 +76,10 @@ Shell 编程说实话也是一门学问，但这里只讨论两个东西，别�
 ### i. 别名
 语法很简单：`alias a="b"`。注意等号两边**没有空格**。
 
+> [!note]
+> 单引号也可以。区别在于，双引号会「翻译」里面的变量。  
+> 比如`alias osf="$HOME/.osf/facetracker.py"`会把`$HOME`翻译成具体的家目录路径，如`/home/chloridep`。
+
 你可以为内置命令附加一些特性，像默认的`.bashrc`有这么两条：
 ```bash
 alias ls='ls --color=auto'
@@ -83,7 +87,7 @@ alias grep='grep --color=auto'
 ```
 也可以「化繁为简」，把路径比较长的脚本、打字起来比较长的命令缩短成别名：
 ```bash
-alias pac='sudo pacman'
+alias pac='sudo pacman'  # 对标一下 yay paru（
 ```
 然后你就可以用`pac -S wine`代替`sudo pacman -S wine`了。
 
@@ -122,7 +126,7 @@ function start-facetrack() {
 - 对当前用户：`~/.local/bin`
 
 > [!warning]
-> 不建议直接塞进`/usr/bin`。若是哪天有个软件包跟你的脚本重名了，而你恰需要安装它，这时候 pacman 就「用户，不可战胜的」咯（指文件占用 Fatal Error）。
+> 不建议直接塞进`/usr/bin`。若是哪天有个软件包跟你的脚本重名了，而你恰需要安装它，这时候 pacman 就报“文件占用，安装失败”咯。
 
 然后简单说说脚本本身。脚本本身需要赋予「可执行」权限（软链接则对指向的原件赋权），并且在文件开头指定是用什么解释器运行的：
 ```bash
@@ -164,12 +168,13 @@ $ facetracker -W 1280 -H 720 --discard-after 0 --scan-every 0 --no-3d-adapt 1 --
 > - **谨遵发布页面附送的安装指引**（KDE、GNOME 主题可以参考项目 GitHub），否则可能安装不全。
 
 > [!warning]
-> 目前大部分 KDE 美化方案适用于 KDE 5，换言之已经过时。比如`latte-dock`已明显无法用于 KDE 6。
+> 目前大部分 KDE 美化方案适用于 KDE 5，换言之已经过时。比如`latte-dock`已明显无法用于 KDE 6。  
+> ~~以及，讲道理，要花里胡哨的美化大可以直接改用 Hyprland（~~
 
 ### i. 主题
 主题这边我也没啥好推荐的，虽然 KDE 6 现在也出现了一些比较好看的主题，但终究是因人而异吧。
 
-我想说明的是，KDE 商店的多数主题在 125% 甚至更高缩放率下会出现「非常粗窗口边框，使我的窗口肥胖」的现象（至少我的笔记本如此）。  
+我想说明的是，KDE 商店的多数主题在 **X11 会话、125% 甚至更高缩放率**下会出现「非常粗窗口边框，使我的窗口肥胖」的现象（至少我的笔记本如此）。  
 我个人目前是直接修改主题 Aurorae 配置文件，利用二分法逐步找到四条边的最适 Padding。
 网上貌似也有「把缩放调回 100%，但是更改字体 DPI」的做法，但个人觉得显示效果应该好不到哪去（
 
@@ -206,72 +211,62 @@ KDE 原生的桌面 UI 就挺 Windows 的，但胜在自由度足够高。
 除了 Finder 栏外，可以在系统设置里更改屏幕四周的鼠标表现。
 比如，鼠标移动到左上角可以自动弹出「应用程序启动器」，移到右上角可以切换你的桌面，等等。
 
-### iii. Wine / Windows 字体选取
+## 引导
 
-这个议题本身是出于我个人对字体的强迫症，以及个人对经典「微软雅黑」的偏见展开的，本来也没有讨论的必要。
-但在探索 work around 时对 Windows 字体回落机制的 ~~阉鸠~~ 研究还是值得一小节笔记的。
+### i. 修复 Grub 引导
+我个人采取 Arch 独占本机，WinToGo 部署在固态 U 盘里的策略。但由于各种原因，WinToGo 的引导会试图干涉本机的 ESP 分区。此外，如果你**换过硬盘又换了回来**，大概率也是掉引导的。这时如果你用 LiveCD 查看硬盘的文件结构，会发现它们都是正常的；但固件就是认不出 Arch 硬盘的启动项。
 
-::: details Windows 字体选取机制
-参考资料：[微软文档 - 全球化 - UI - 字体](https://learn.microsoft.com/zh-cn/globalization/fonts-layout/fonts)
+那么 Windows 启不动我们会尝试「修复引导」，Arch 亦然。修复 Grub 引导实际上就是**重走 Grub 安装流程**：
 
-Windows 主要通过注册表 `HKLM\SoftWare\Microsoft\Windows NT\CurrentVersion`
-里的三个子项`Fonts` `FontSubstitutes` `FontLink\SystemLink`进行字体选取。
+- `mount`挂载相应分区；
+- `genfstab`重建挂载表（如有必要）；
+> 个人建议无论如何都重建一遍`fstab`。反正管道`>`能够保证你的分区情况绝对最新。
+- `arch-chroot`切换进硬盘上的系统；
+- `grub-install`重建 grub 引导。
 
-首先检索`Fonts`里对应字体规格是否有文件对应。例如，「微软雅黑 (TrueType)」会对应`msyh.ttc`。
-一般 Windows Vista 及以上系统显然**有这个文件**，点开这个字体**文件也有名为「微软雅黑」的字体规格**，
-那么系统便直接取指定文件的指定规格，去渲染刷了指定字体格式的文字（比如 Word、OBS 文字层、程序资源文件等）。
-> 根据微软文档，字体「回落」首先发生在渲染引擎。比如，CSS 的`font-family`可以指定一系列字体，以应对不同操作系统的字体库差异。  
-> 渲染引擎的「回落」在 Windows 里应该是仍遵循 Fonts 对应原则的。因为此时检索的还是具体的字体规格字符串，或者至少是字体名称字符串。
+### ii. EFIStub
+> [!info]
+> [Arch Wiki - EFIStub](https://wiki.archlinux.org/title/EFISTUB)
 
-若找不到对应的字体规格，则尝试系统层面的 FallBack（即回落）。微软文档对 Windows 的回落机制有个大致的叙述：
+Grub 本身写入 EFI 的内容不多，有人便主张把`/boot`还给`/`，ESP 分区实际挂载`/boot/EFI`。
+而 [@frg2089](https://github.com/frg2089) 则提出了更激进的主张：让固件直接引导内核。
 
-> The Windows operating system allows for font substitution,
-> but font substitution **should be considered a last resort approach**.
+事实上确实可以这么做，也就是`EFIStub`。Arch 默认食用的`vmlinuz-linux`内核（也有人喜欢 Zen 内核，另说）本身是可启动的，只是需要附加**内核参数**：
+> 为便于阅读，这里分了三行；以 Btrfs 文件系统为例。
+```
+root=UUID=7a6afcd0-a25a-4a6c-bf7b-920b53097eae rw rootflags=subvol=@
+resume=UUID=b84ae173-edbc-442c-b00b-5c47eef203f1
+loglevel=3 quiet initrd=\intel-ucode.img initrd=\initramfs-linux.img
+```
+::: details 内核参数详解
+Grub 等启动加载器的本职工作就是帮你引导内核，因此它们的配置文件已经包含完整的内核参数了。
+我上面列的内核参数是参照 Wiki 自行搭配，确认可行的参数。你也可以查 Wiki 自行组合。
+- `root`：`/`分区。目前只见到 UUID 填法。
+- `rw rootflags=subvol=@`：对`/`分区挂载的附加属性，比如可读写、指定 Btrfs 子卷。
+- `resume`：休眠使用的交换分区，同样只见到 UUID 填法。  
+  休眠时会在指定 Swap 里创建内存映像。
+- `loglevel=3 quiet`：内核加载时的附加属性，如日志等级之类。
+- `initrd=\intel-ucode.img`：加载的初始化内存盘 (Init RAM Disk)。  
+  一个`.img`一条`initrd=`，路径用`\`分隔，顺序自左向右（可以参见 grub 的配置文件）
 
-简单来说，**「链接」优先，「替代」保底**。
-其中，「替代」是一对一的关系（值的类型均为`REG_SZ`，且并未看到过填入多个值的案例）；「链接」则维护备选的字体列表。
-若原字体没有收录某个字、渲染不出来，则转而查询链接表；若仍猹不到，则直接将这类字体统一替代成相应的字体和代码页（即编码）。
+> [!note]
+> 个人觉得这里 initrd 称作「初始化映像」更合适，毕竟需要填`.img`嘛。
 :::
 
-当然，随着我这边把系统区域与语言改为英语（美国），Wine 这边不可避免地出现编码混乱的问题（需要手动指定`LANG`环境变量），
-动注册表触发系统级字体回落机制的办法已然失效。
-
-## 重建 Grub 引导
-虽然对多数人（乃至现在的我）来说重建引导似乎挺简单的，但还是需要说明一下，因为 Grub 引导钛脆弱辣。  
-简而言之，一旦 Arch 系统硬盘出了什么变故（被 ChkDsk、DiskGenius 干过，或是换了块硬盘又换回来），其 Grub 引导均会失效（BIOS 不识别），但此时硬盘分区（含 EFI 分区）均完好。
-
-重建 Grub 引导的详细介绍可以看[这篇文章](https://medium.com/@rahulsabinkar/how-to-restore-your-broken-grub-boot-loader-on-arch-linux-using-chroot-2fbc38bb01d9)；省流版说实话就是重走一遍安装系统时的「刷入 Grub 引导」流程：
-
-- 从 LiveCD 启动，挂载`mount`相应分区。
-- 【注意】确认分区实际 UUID 是否与挂载表`fstab`记载一致。如不放心，重新`genfstab`生成挂载表。
-- 切换`arch-chroot`进挂载的 Arch 系统；
-- 重刷 Grub `grub-install`。
-
-上面提到的文章末尾还推荐你改用 [rEFInd](https://wiki.archlinux.org/title/REFInd)，但相关的介绍和教程已经在 Miku 指南里提及过了，这里就不再赘述。
-
-::: details EFIStub 简介
-参考资料：[Arch Wiki - EFIStub](https://wiki.archlinux.org/title/EFISTUB)
-
-Arch 默认安装的 Linux 内核允许直接通过计算机固件（或者说 BIOS？）引导，并相应地加载、进入 Arch Linux 系统。
-
-当然，有一些固件可能本身就支持新增、删除引导项（如华硕 Adol14Z）。方便的话，也可以直接在 BIOS 里操作；此外，还有一些固件不支持传递内核参数，需要另外包装成`.efi`文件交给固件引导（Wiki 2.1 注）。
-
-我参考的两篇安装指南都有涉及`efibootmgr`软件包的安装，理论上你可以直接使用它来创建 UEFI 启动项：
+LiveCD 里的`efibootmgr`工具可以直接操作固件的启动项。当然若是遵照律回指南和 Miku 指南，那么`efibootmgr`业已安装到你的系统中，你可以在运行中的本机 Arch 系统中折腾：
 ```bash
-# 以 Btrfs 文件系统为例（仅供参考）
+# 首先确定你要操作的硬盘和分区，不要搞错。UUID 马上就会用到
+lsblk -o name,mountpoint,uuid
+# 参见 Wiki，以 Btrfs 为例，仅供参考
 sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
   --label "Arch Linux" --loader /vmlinuz-linux \
   --unicode 'root=UUID=f6419b76-c55b-4d7b-92f7-99c3b04a2a6f rw rootflags=subvol=@  loglevel=3 quiet initrd=\intel-ucode.img initrd=\initramfs-linux.img'
 ```
-`--unicode`后面跟着的就是**内核参数**。需要重点留意：
-- `root=` Arch 系统根目录`/`分区
-- `resume=` 休眠挂起、恢复的 Swap 分区
-> 像上面的`UUID=`传参法需要确认好分区 UUID，可用`lsblk -o name,mountpoint,size,uuid`猹询。
-> 此外尚不清楚`/dev/nvme0n1pX`这种写法可不可行。目前没有条件实机测试。
-
-- `initrd=` 初始化镜像。每个镜像都要前置`initrd=`，并且挂载遵循先后顺序。
-> 像`/boot/grub/grub.cfg`、`/boot/refind_linux.conf`这些启动管理器的配置文件都会写清楚要挂载的映像。
-
-出于篇幅与安全性考虑，这里就不对 efibootmgr 作进一步介绍了。  
-创建完启动项后可以重启、进入主板启动选项（想想你怎么用 U 盘装系统的）、选中你刚刚建好的启动项回车。若一切无误，你应该能直接看到 Linux 内核日志刷屏，然后便是用户登录界面。
+::: note 创建启动项命令详解
+- `--part 1`：你的 ESP 分区序号。根据`lsblk`的树状图顺序判别。
+- `--label "Arch Linux"`：启动项名称。大多数固件并不支持中文。
+- `--unicode`后面跟内核参数。
 :::
+
+此外，根据 [Arch Wiki - 统一内核镜像 UKI](https://wiki.archlinux.org/title/Unified_kernel_image) 的描述，你还可以为`mkinitcpio`配置好内核参数，要求它生成`.efi`，如此一来便可以直接用 EFI 文件代替`efibootmgr`手工创建了。  
+~~就是每次重建引导可能会多一步调整内核参数。毕竟硬盘分区 UUID 有可能会变（比如迁移系统）。~~
