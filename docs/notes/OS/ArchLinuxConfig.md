@@ -71,7 +71,6 @@ gpg --allow-secret-key-import --import ~/private-file.key
 ## Linux Shell 相关
 Shell 编程说实话也是一门学问，但这里只讨论两个东西，别名`alias`和函数`function`。  
 你可以把需要简记、快速调用的东西包装成别名或者函数，写进`~/.bashrc`（或者`~/.zshrc`，如果你换用 zsh 的话）。
-如此，每次启动`bash`或`zsh`时，你都可以享受这些用户定义带来的效率红利了（笑）。
 
 ### i. 别名
 语法很简单：`alias a="b"`。注意等号两边**没有空格**。
@@ -167,10 +166,6 @@ $ facetracker -W 1280 -H 720 --discard-after 0 --scan-every 0 --no-3d-adapt 1 --
 > - 少搞「侵入性」美化。或者说，需要**修改系统文件、注入系统进程、破坏系统稳定的美化尽量少做**。
 > - **谨遵发布页面附送的安装指引**（KDE、GNOME 主题可以参考项目 GitHub），否则可能安装不全。
 
-> [!warning]
-> 目前大部分 KDE 美化方案适用于 KDE 5，换言之已经过时。比如`latte-dock`已明显无法用于 KDE 6。  
-> ~~以及，讲道理，要花里胡哨的美化大可以直接改用 Hyprland（~~
-
 ### i. 主题
 主题这边我也没啥好推荐的，虽然 KDE 6 现在也出现了一些比较好看的主题，但终究是因人而异吧。
 
@@ -210,63 +205,3 @@ KDE 原生的桌面 UI 就挺 Windows 的，但胜在自由度足够高。
 
 除了 Finder 栏外，可以在系统设置里更改屏幕四周的鼠标表现。
 比如，鼠标移动到左上角可以自动弹出「应用程序启动器」，移到右上角可以切换你的桌面，等等。
-
-## 引导
-
-### i. 修复 Grub 引导
-我个人采取 Arch 独占本机，WinToGo 部署在固态 U 盘里的策略。但由于各种原因，WinToGo 的引导会试图干涉本机的 ESP 分区。此外，如果你**换过硬盘又换了回来**，大概率也是掉引导的。这时如果你用 LiveCD 查看硬盘的文件结构，会发现它们都是正常的；但固件就是认不出 Arch 硬盘的启动项。
-
-那么 Windows 启不动我们会尝试「修复引导」，Arch 亦然。修复 Grub 引导实际上就是**重走 Grub 安装流程**：
-
-- `mount`挂载相应分区；
-- `genfstab`重建挂载表（如有必要）；
-> 个人建议无论如何都重建一遍`fstab`。反正管道`>`能够保证你的分区情况绝对最新。
-- `arch-chroot`切换进硬盘上的系统；
-- `grub-install`重建 grub 引导。
-
-### ii. EFIStub
-> [!info]
-> [Arch Wiki - EFIStub](https://wiki.archlinux.org/title/EFISTUB)
-
-Grub 本身写入 EFI 的内容不多，有人便主张把`/boot`还给`/`，ESP 分区实际挂载`/boot/EFI`。
-而 [@frg2089](https://github.com/frg2089) 则提出了更激进的主张：让固件直接引导内核。
-
-事实上确实可以这么做，也就是`EFIStub`。Arch 默认食用的`vmlinuz-linux`内核（也有人喜欢 Zen 内核，另说）本身是可启动的，只是需要附加**内核参数**：
-> 为便于阅读，这里分了三行；以 Btrfs 文件系统为例。
-```
-root=UUID=7a6afcd0-a25a-4a6c-bf7b-920b53097eae rw rootflags=subvol=@
-resume=UUID=b84ae173-edbc-442c-b00b-5c47eef203f1
-loglevel=3 quiet initrd=\intel-ucode.img initrd=\initramfs-linux.img
-```
-::: details 内核参数详解
-Grub 等启动加载器的本职工作就是帮你引导内核，因此它们的配置文件已经包含完整的内核参数了。
-我上面列的内核参数是参照 Wiki 自行搭配，确认可行的参数。你也可以查 Wiki 自行组合。
-- `root`：`/`分区。目前只见到 UUID 填法。
-- `rw rootflags=subvol=@`：对`/`分区挂载的附加属性，比如可读写、指定 Btrfs 子卷。
-- `resume`：休眠使用的交换分区，同样只见到 UUID 填法。  
-  休眠时会在指定 Swap 里创建内存映像。
-- `loglevel=3 quiet`：内核加载时的附加属性，如日志等级之类。
-- `initrd=\intel-ucode.img`：加载的初始化内存盘 (Init RAM Disk)。  
-  一个`.img`一条`initrd=`，路径用`\`分隔，顺序自左向右（可以参见 grub 的配置文件）
-
-> [!note]
-> 个人觉得这里 initrd 称作「初始化映像」更合适，毕竟需要填`.img`嘛。
-:::
-
-LiveCD 里的`efibootmgr`工具可以直接操作固件的启动项。当然若是遵照律回指南和 Miku 指南，那么`efibootmgr`业已安装到你的系统中，你可以在运行中的本机 Arch 系统中折腾：
-```bash
-# 首先确定你要操作的硬盘和分区，不要搞错。UUID 马上就会用到
-lsblk -o name,mountpoint,uuid
-# 参见 Wiki，以 Btrfs 为例，仅供参考
-sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
-  --label "Arch Linux" --loader /vmlinuz-linux \
-  --unicode 'root=UUID=f6419b76-c55b-4d7b-92f7-99c3b04a2a6f rw rootflags=subvol=@  loglevel=3 quiet initrd=\intel-ucode.img initrd=\initramfs-linux.img'
-```
-::: note 创建启动项命令详解
-- `--part 1`：你的 ESP 分区序号。根据`lsblk`的树状图顺序判别。
-- `--label "Arch Linux"`：启动项名称。大多数固件并不支持中文。
-- `--unicode`后面跟内核参数。
-:::
-
-此外，根据 [Arch Wiki - 统一内核镜像 UKI](https://wiki.archlinux.org/title/Unified_kernel_image) 的描述，你还可以为`mkinitcpio`配置好内核参数，要求它生成`.efi`，如此一来便可以直接用 EFI 文件代替`efibootmgr`手工创建了。  
-~~就是每次重建引导可能会多一步调整内核参数。毕竟硬盘分区 UUID 有可能会变（比如迁移系统）。~~

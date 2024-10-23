@@ -15,16 +15,9 @@ star: true
 <!-- https://arch.icekylin.online/guide/-->
 
 ::: details 我选择 Arch 的理由
-只能说比起 M$ 如今「Windows 即服务」的理念，我还是更倾向于把操作系统当作纯正的工具。哎，果然还是怀念 Win7 啊。
-
-Ubuntu 我也试过，开箱即用，很不错。而真正决定装 Arch、当作日常系统的理由，可能还是这句话吧：
-
-> 「缘，妙不可言。」
-
-去年（2023）尝鲜 Ubuntu 的时候也有群友撺掇我装 Arch，但查官网 Wiki 发现每一步都要命令行手操，很担心翻车，就拒了；
-今年则因为一些契机偶然认识了一群可爱的开发者，正好其中有一只（？）邀请我试「玩」Arch。「玩」我肯定有兴趣，更别说 Ta 还贴了指南给我。
-
-当然，能够放心上 Arch 还有另一重原因：Moonlight 串流证实可行，因此我早就把大部分负载迁移到受控主机上了。就算真的翻车了，也不会对我造成严重损失。
+1. 比起「服务」，我还是更倾向于把操作系统当作纯正的工具。可能这就是旧信息时代遗老吧。
+2. 「缘，妙不可言」。
+3. 具体工作具体分析吧。跨平台开发 Arch 也挺舒服的。但 Office Adobe 全家桶就不适合它了。
 :::
 
 其实这篇笔记说是「流程」，更像是「避坑指南」。因为文中大部分实际操作步骤都是直接贴的参考外链。
@@ -54,7 +47,7 @@ Ubuntu 我也试过，开箱即用，很不错。而真正决定装 Arch、当�
 网上对此已有很多成熟的教程，恕不在这里浪费时间了。但有两件事稍微还是要注意一下。
 
 首先是主板设置^1^。如今的主板应该都允许使用 UEFI 了，故本篇笔记也不会考虑传统 BIOS 引导，你需要**确保主板是 UEFI 启动**；
-除此之外，**需要关闭「安全启动」**（Secure Boot）。该措施系 Windows 内核加载的一种保护机制，但 Linux 的启动文件一般莫得微软签名。
+除此之外，**需要关闭「安全启动」**（Secure Boot）。UEFI 的这一机制会拒绝执行未签名的启动文件，而不幸的是，Arch 食用的 Linux 内核以及 Grub 等加载器的确没有签名，并且签名的「手续」很麻烦。
 
 其次是你的 WiFi 名字^2^。在 Arch 的 LiveCD（维护环境，下同）里，大部分安装步骤都需要手敲命令来完成，并且**无法输入、显示中文**。
 如果你打算用 WiFi 连接，不妨提前更一下名。
@@ -88,8 +81,8 @@ U 盘启动 PE 相信很多人都操作过，或者看过教程。LiveCD 也是�
 - `t`：对于 EFI 引导分区，需要借此更改分区类型为 EFI System（即 ESP）。
 
 > [!info]
-> 此举是出于兼容考虑。因为真正的 EFI System Part. (ESP) 是有全球唯一的分区类型 UUID 的，这意味着真正的 ESP 分区可以被更多的主板识别到。  
-> 当然也有些固件可能只认 Windows 的`bootmgfw.efi`，这种情况最好还是查一下「如何往 BCD 中添加 Linux 启动项」。
+> 此举是出于兼容考虑。诚然较新的主板可以搜索任意 FAT 分区中的 EFI 文件，但旧主板未必，Windows 的`bootmgr`未必。  
+> 当然也有些固件可能只认 Windows 的`bootmgfw.efi`，如此不妨试试 [UKI](./ArchBoot.md#统一内核镜像-uki)。
 
 - `w`：保存并应用分区表更改。DiskGenius 改分区也不是设置完立马生效的嘛。
 :::
@@ -179,7 +172,7 @@ sudo pacman-key --lsign-key "farseerfc@archlinux.org"  # 为密钥环添加本�
 sudo pacman -S archlinuxcn-keyring  # 安装密钥环
 sudo pacman -S yay paru   # 安装 AUR 助手
 ```
-::: note 关于本地信任 Key
+::: info 关于本地信任 Key
 简单来说就是给 CN 源密钥环签名的`farseerfc`他的 Key 掉信任了，包管理器「不敢」安装这个密钥环^2^。
 :::
 
@@ -192,10 +185,10 @@ sudo pacman -S sof-firmware alsa-firmware alsa-ucm-conf
 # pipewire 及其音频管理套件
 sudo pacman -S pipewire gst-plugin-pipewire pipewire-alsa pipewire-jack pipewire-pulse wireplumber
 ```
-::: info pulseaudio
+::: tip pulseaudio
 除了 pipewire 音频方案之外另有`pulseaudio`可供选择。但务必注意：音频管理套件**只能二选一，不可以混装**。
 
-另外，由于 pipewire 本身不单只负责音频管理的工作，如需装 pulseaudio 仍需安装`pipewire` `gst-plugin-pipewire`两个包。  
+另外，由于 pipewire 本身不单只负责音频管理的工作，如需装 pulseaudio 仍需安装`pipewire` `gst-plugin-pipewire`两个包。
 相应地，其余的包可换用如下平替：
 
 - `pipewire-alsa` → `pulseaudio-alsa`
@@ -266,21 +259,20 @@ sudo systemctl enable --now bluetooth
 ### 5.3 额外中文字体和输入法
 
 律回指南安装的字体分别是 Noto 系列（Linux 常用的 Unicode 字体）和思源系列（也算是 Noto 系列的子集）。
-其中 Noto 系列的汉字部分由于一些神秘的原因，渲染出来只能说……能用。
+其中 Noto 系列的汉字部分由于一些神秘的原因，不做额外配置的话，渲染出来只能说……能用。
 
 ::: info 参考资料
 - [Arch Wiki：关于中文字被异常渲染成日文异体字的说明](https://wiki.archlinux.org/title/Localization/Simplified_Chinese#Chinese_characters_displayed_as_variant_(Japanese)_glyphs)^2^
-- [Arch CN BBS：noto-fonts-cjk 打包变化可能导致的回落字体选取问题](https://bbs.archlinuxcn.org/viewtopic.php?pid=60100)^2^
+- [Arch 中文论坛：noto-fonts-cjk 打包变化可能导致的回落字体选取问题](https://bbs.archlinuxcn.org/viewtopic.php?pid=60100)^2^
 :::
 
-Miku 版指南则建议额外安装文泉驿字体`wqy-zenhei`^extra^，但我个人觉得这个字体笔划太细。
-我目前在用小米那套`misans`^aur^，想「遥遥领先」也可以试试鸿蒙字体`ttf-harmonyos-sans`^aur^。
-
-> 7 月初再重装时发现`misans`包会卡在解包—构建的死循环，后面改为手动安装`ttf-misans` `otf-misans` `misans-fontconfig`。
-
 ::: note fontconfig
-文泉驿和 MiSans 会在安装过程中自动帮你配置 fontconfig，因此安装完这两款字体之后你系统默认用这些字体显示；
-如果您希望食用 Noto 系列字体、鸿蒙字体，或是其他没有特别适配的字体，还请**注意在安装完成之后另行配置 fontconfig**。
+`wqy-zenhei`^extra^（文泉驿）和`misans`^aur^会在安装过程中自动帮你配置 fontconfig，因此安装完这两款字体之后系统默认用这些字体显示。
+如果你希望使用未经适配的字体，那么需要在 KDE 设置里装好字体后，额外做字体配置。
+
+示例：[思源系列字体配置](../../shared/01-Prefer.conf) By [@Vescrity](https://github.com/Vescrity)  
+注意：用户级字体配置需放在`~/.config/fontconfig/conf.d`目录中。  
+另注：使用`fc-cache -vf`刷新字体缓存。
 :::
 
 至于输入法，律回指南推荐安装搜狗拼音`fcitx-sogoupinyin`^aur^，
