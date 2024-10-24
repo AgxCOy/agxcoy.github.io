@@ -1,30 +1,23 @@
 import { hopeTheme } from "vuepress-theme-hope";
-import navbar from "./src/navbar.js";
-import sidebar from "./src/sidebar.js";
+import navbar from "./navbar.js";
+import sidebar from "./sidebar.js";
 
 export default hopeTheme(
   {
     hostname: "https://chloridep.github.io/blogs",
-
     author: {
       name: "Kariko Lin",
       url: "https://github.com/ChlorideP",
     },
-
     iconAssets: "fontawesome-with-brands",
-
     logo: "/assets/images/avatar.webp",
-
     repo: "ChlorideP/blogs",
-
     docsDir: "docs",
 
     // 导航栏
     navbar,
-
     // 侧边栏
     sidebar,
-
     // 页脚
     footer: "氯离子实验室 出品",
     displayFooter: true,

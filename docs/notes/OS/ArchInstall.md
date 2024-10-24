@@ -62,11 +62,11 @@ U 盘启动 PE 相信很多人都操作过，或者看过教程。LiveCD 也是�
 由于`ext4`调整分区大小并不是很方便，我改用了`Btrfs`文件系统，备份则采用`RSYNC`异盘同步和`Btrfs`同盘快照。你仍可以参照律回指南[第二章「分区、格式化与挂载」](https://www.glowmem.com/archives/archlinux-note#toc-head-3)去操作。
 
 ::: details 补充一下律回的 fdisk 操作流程
-> 注：下列内容也只考虑全新安装。
+> 注：下列内容只考虑全新安装。
 
 首先需要知道你要操作哪块硬盘：`lsblk`命令可以以树形结构呈现出当前都连着什么硬盘，都分了什么区。
 
-然后`fdisk /dev/<disk_id>`进入操作控制台。比如上图那块 M.2 就`fdisk /dev/nvme0n1`。  
+然后`fdisk /dev/<disk_id>`进入操作控制台，比如`fdisk /dev/nvme0n1`。  
 在控制台里可以敲`m`看帮助。清空重新分区大致的操作如下（是的，都是单字母喔）：
 
 - `g`：新建 GPT 分区表。
@@ -82,7 +82,7 @@ U 盘启动 PE 相信很多人都操作过，或者看过教程。LiveCD 也是�
 
 > [!info]
 > 此举是出于兼容考虑。诚然较新的主板可以搜索任意 FAT 分区中的 EFI 文件，但旧主板未必，Windows 的`bootmgr`未必。  
-> 当然也有些固件可能只认 Windows 的`bootmgfw.efi`，如此不妨试试 [UKI](./ArchBoot.md#统一内核镜像-uki)。
+> 当然也有些固件可能只认 Windows 的`bootmgfw.efi`，如此不妨试试 [UKI](./ArchUEFI.md#统一内核映像-uki)。
 
 - `w`：保存并应用分区表更改。DiskGenius 改分区也不是设置完立马生效的嘛。
 :::

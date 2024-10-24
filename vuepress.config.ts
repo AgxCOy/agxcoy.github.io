@@ -1,5 +1,5 @@
 import { defineUserConfig } from "vuepress";
-import theme from "./vuepress.theme.js";
+import theme from "./src/theme.hope.js";
 
 export default defineUserConfig({
   base: "/blogs/",

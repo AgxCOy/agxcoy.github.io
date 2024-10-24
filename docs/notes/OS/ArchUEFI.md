@@ -9,15 +9,19 @@ tag:
   - UKI
 ---
 
-# Arch Linux 启动二三事
+# Arch Linux UEFI 启动二三事
 
-由于我对 Linux 乃至整个 UEFI 加载机制尚且「浅尝辄止」，本文并不会展开很多硬核内容，只是对我个人使用过的启动方案做个总结。
+由于我对 Linux 乃至整个 UEFI 的启动机制尚且「浅尝辄止」，本文并不会展开很多硬核内容，只是对我个人使用过的启动方案做个总结。
+
+::: tip 「引导」和「启动」
+在维基百科当中二者似乎是同一概念（[Booting](https://en.wikipedia.org/wiki/Booting)），搜索「启动程序」会跳转到[「引导程序」](https://zh.wikipedia.org/wiki/%E5%95%9F%E5%8B%95%E7%A8%8B%E5%BC%8F)的介绍。国内很多折腾 WinPE 的人（包括我）对此也并没有很明确的区分；当然有些博客则对开机装载 Linux 的过程拆分成「引导」、「启动」两个阶段。本文为了方便起见，用词不作区分。
+:::
 
 此「实验」原本只是[《Arch Linux 配置小贴士》](./ArchLinuxConfig.md)的其中一个议题。在此感谢岛风 [@frg2089](https://github.com/frg2089) 指路。
 
 ## UEFI 启动简述：启动项管理
 
-> UEFI 规范定义了名为「UEFI 启动管理器」的一项功能 …… UEFI 提供了一种非常优秀的机制，可以从上层架构执行此操作：你可以从已启动的操作系统中配置系统启动行为。如果已通过 UEFI 启动 Linux，就可以使用`efibootmgr`工具来完成所有这些操作。……
+> UEFI 规范定义了名为「UEFI 启动管理器」的一项功能 …… 是一种固件策略引擎，可通过修改固件架构中定义的全局 NVRAM 变量来进行配置。启动管理器将尝试按全局 NVRAM 变量定义的顺序依次加载 UEFI 驱动和 UEFI 应用程序（包括 UEFI 操作系统启动装载程序）。……
 > ::: right
 > ——[（译）UEFI 启动：实际工作原理](https://www.cnblogs.com/mahocon/p/5691348.html)
 > :::
@@ -27,20 +31,20 @@ tag:
 ### i. 原生启动项
 用 Windows 7 及更高版本系统的朋友肯定知道这个东西：Windows Boot Manager。`bootmgr`它代替了`ntldr`，从此便沿用至今。
 
-事实上，Windows Boot Manager 是在系统安装完成后，**初次加载系统时**为其创建的启动项。它明确指出需要启动**指定存储设备中**的**指定引导文件**（即`bootmgfw.efi`）。  
-即便 WinToGo 也是如此——在初次以 U 盘身份进入 WTG 系统时，Windows 也会为该设备作配置——所谓「正在准备设备」。在此过程中，顺带把原生启动项建立好。然后重启之后再按快捷键进入启动菜单，你**可能会在部分主板上**发现有两个启动项，指向同一个设备：
+事实上，Windows Boot Manager 是系统安装完成后，**初次加载系统时**为其创建的原生启动项。它明确指出需要启动**指定设备中**的**指定引导文件**（即`bootmgfw.efi`）。
+
+即便 WinToGo 也是如此——在初次以 U 盘身份进入 WTG 系统时，Windows 也会为该设备作配置——所谓「正在准备设备」。在此过程中，顺带把原生启动项建立好。然后重启之后再按快捷键进入启动菜单，你**可能**会在**部分主板上**发现有两个启动项，指向同一个设备：
 ```
 Windows Boot Manager ( Koi Series Pro ...)
 USB HDD: Koi Series Pro ...
 ```
-
-需要注意的是，原生启动项是存储在主板里的（更准确的说，是固件定义的全局 NVRAM 变量）。这多少可以解释为什么 Grub 引导那么脆弱（
+需要注意的是，原生启动项是**存储在主板里的**（更准确的说，是全局 NVRAM 变量）。这多少可以解释为什么 Grub 引导那么脆弱（
 
 ### ii. 回退路径启动项
 对于 WinPE、Windows 安装镜像而言，它们并非用于长线运行，往往没有「配置设备」的步骤，那么 UEFI 如何认出它们捏？  
 还记得上面提到的「以 U 盘身份」、「USB HDD: ...」吗？UEFI 固件是能够找到可启动设备，并且尝试启动的。但它是依据什么去找的捏？
 
-UEFI 固件首先会**遍历各硬盘的 ESP**，并在其中查找`\EFI\BOOT\boot{cpu_arch}.efi`。对于同一硬盘的多个匹配项，**只选第一个**有效的。其中，`cpu_arch`即 CPU 架构，已知的有：
+UEFI 固件首先会**遍历各硬盘的 ESP 分区**，并在其中查找`\EFI\BOOT\boot{cpu_arch}.efi`。前面的这一固定路径就称为**回退路径**，通过查找回退路径建立的启动项就称作**回退路径启动项**。其中，`cpu_arch`即 CPU 架构，已知的有：
 - `x64`：x86-64
 - `ia32`：x86-32
 - `ia64`：Itanium
@@ -50,17 +54,23 @@ UEFI 固件首先会**遍历各硬盘的 ESP**，并在其中查找`\EFI\BOOT\bo
 > [!note]
 > UEFI 的路径系统与 Windows 类似：以`\`分隔，不区分大小写。
 
-对于 WinPE U 盘，通常它们是 MBR 分区表，那就考虑更泛用的搜索：采用 **FAT** 文件系统的**活动分区**；
-对于 GPT 分区表，可以直接找 ESP 分区。当然如今的主板并不会卡那么死，哪怕只是普通的 FAT 分区，也会尝试搜索、执行。
+如果同一硬盘、同一 CPU 架构存在多个 EFI 文件（比如，可能有两个 ESP 分区，分开装不同系统的 EFI），那么**只会选第一个有效的**去执行。
+
+对于 WinPE U 盘，通常它们是 MBR 分区表，那么会考虑更泛用的搜索：采用 **FAT** 文件系统的**活动分区**；
+对于 GPT 分区表，可以直接搜索 ESP 分区。当然如今的主板并不会卡那么死，哪怕只是普通的 FAT 分区，也会尝试搜索、执行。
 
 也就是说，哪怕原生启动项意外被固件扬了，只要还有回退启动项，便仍可从同一个硬盘启动系统。
 
+> [!info]
+> 实际上`bcdboot`工具会在 ESP 分区里同时写入`bootx64.efi`和`bootmgfw.efi`，这两个 EFI 除了文件名以外并无区别。
+> 前者即回退路径启动项，作为启动 Windows 的后备方案。
+
 ## 启动加载器（以 Grub 为主）
-这也是最广泛使用的启动方式 ~~，Windows 也干了~~。在 Linux 当中，最常用的加载器是 Grub。当然，Arch 这边也有使用 rEFInd 的。
+这也是最广泛使用的启动方式 ~~，Windows 也干了~~。在 Linux 当中，最常用的加载器是 Grub。当然，也有使用 rEFInd 的。
 
-启动加载器本身作为跳板，被 UEFI 固件加载后，需要根据配置找到真正的 Linux 内核，并经由内核引导用户硬盘上的 Arch 系统。而在 Windows 中，`bootmgfw.efi`会查找硬盘系统中的`winload.exe`，并将其余的启动流程交给它完成。
+启动加载器本身作为跳板，被 UEFI 固件加载后，需要根据配置找到真正的 Linux 内核，并经由内核引导用户硬盘上的 Arch 系统。而在 Windows 中，`bootmgfw.efi`会根据`BCD`配置文件，执行硬盘其中一个 Windows 副本中的`winload.exe`，并将该副本的其余加载流程交给它完成。
 
-正常使用 Windows 单系统的用户可能对启动过程并无察觉。但一旦与 Linux 混用，你就需要**留意 UEFI 启动项是否有被 Windows 刷新**。除此之外，尽管因「机」而异，但 UEFI 固件**有可能会自动剔除不再可用的启动项**。比如重新插拔固态，有可能会出现掉引导的情况。因此就个人来说，我不会再考虑 bootloader 了。
+正常使用 Windows 单系统的用户可能对启动过程并无察觉，因为 Windows 为了确保能够启动，会时不时刷新启动项。但一旦与 Linux 混用，你就需要**留意 Linux 的加载器会不会被 Windows 刷下去（甚至被覆盖）**。除此之外，尽管因「机」而异，但 UEFI 固件**有可能会自动清理不再可用的启动项**。比如重新插拔固态，有可能会出现掉引导的情况。因此就个人来说，我不会再考虑 bootloader 了。
 
 ### i. 修复 Grub 引导
 Windows 启不动我们会尝试「修复引导」，Arch 亦然。修复 Grub 引导实际上就是**重走 Grub 安装流程**：
@@ -76,8 +86,8 @@ Windows 启不动我们会尝试「修复引导」，Arch 亦然。修复 Grub �
 
 ![群友的 ESP 分区目录树](./esp_without_bootARCH.png =25%x25%)
 
-那么办法也很简单：建立`/efi/EFI/BOOT`目录，复制重命名成`bootx64.efi`嘛。Windows 不就喜欢复制。  
-当然如果是像图中那样不止一个 Grub，甚至 Windows 和 Arch 双系统，那我不推荐你这么干。
+那么办法也很简单：像 Windows 那样也建一个回退路径启动项。具体来说，在 ESP 分区里建立`EFI\BOOT`目录，复制`grubx64.efi`重命名成`bootx64.efi`嘛。~~Windows 不也干了（~~  
+当然如果是像图中那样不止一个 Grub，甚至同盘 Windows 和 Arch 双系统，那我不推荐你这么做。
 
 > [!warning]
 > 不要在这边试图软链接节省空间！
@@ -92,7 +102,7 @@ Grub 本身写入 ESP 的内容不多，配置啊、Linux 内核啊都在`/boot`
 > —— [Arch Wiki: EFIStub](https://wiki.archlinux.org/title/EFISTUB)
 > :::
 
-根据 Wiki，Arch Linux 的内核本身就是可启动 EFI，只是需要附加[**内核参数**](https://wiki.archlinux.org/title/Kernel_parameters#Parameter_list)：
+根据 Wiki，**默认情况下** Arch Linux 的内核本身就是可启动 EFI，只是需要附加[**内核参数**](https://wiki.archlinux.org/title/Kernel_parameters#Parameter_list)：
 ```
 # 为便于阅读，这里分了三行。
 root=UUID=7a6afcd0-a25a-4a6c-bf7b-920b53097eae
@@ -133,12 +143,12 @@ sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
 ## 统一内核映像（UKI）
 在应用 EFIStub 的时候我就在想，有没有可能写一个`bootx64.efi`，直接带内核参数启动`vmlinuz-linux`呢。后面偶然找到了「统一内核映像」的介绍，豁然开朗。
 
-> A unified kernel image (UKI) is a **single executable** which can be booted **directly from UEFI firmware**, or automatically **sourced by boot loaders with little or no configuration**.
+> A unified kernel image (UKI) is a **single executable** which can be **booted directly from UEFI firmware**, or automatically **sourced by boot loaders with little or no configuration**.
 > ::: right
 > —— [Arch Wiki: Unified Kernel Image](https://wiki.archlinux.org/title/Unified_kernel_image)
 > :::
 
-根据介绍，UKI 实际上就是将内核引导的资源整合起来，打包而成的 EFI 可执行文件。某种意义上这也算是一种「固件直接引导」，只不过 EFIStub 创建原生启动项，而它两种启动项都可以做。
+根据介绍，UKI 实际上就是将内核引导的资源整合起来，打包而成的 EFI 可执行文件。某种意义上这也算是一种「固件直接引导」，只不过 EFIStub 只创建原生启动项，而它两种启动项都可以做。
 
 ::: info UKI 通常包含……
 > 摘自 [UAPI Group Specifications](https://uapi-group.org/specifications/specs/unified_kernel_image/)。
@@ -150,10 +160,10 @@ sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
 - 【可选】CPU 微码
 - 【可选】描述信息、启动屏幕图、设备树……（不重要）
 
-只要集成了 EFI 启动代码和 Linux 内核，那它就已经可以称作「统一内核映像」了。
+只要集成了 EFI 执行代码和 Linux 内核，那它就已经可以称作「统一内核映像」了。
 :::
 
-接下来以`mkinitcpio`为例，但是玩点花活。
+接下来以`mkinitcpio`为例，但是不走寻常路。
 
 ### i. 内核参数
 Wiki 中介绍了两种方法：
@@ -171,9 +181,9 @@ echo 'root=UUID=... resume=UUID=... rw loglevel=3 quiet' > /etc/kernel/cmdline
 > 若启用「安全启动」，且 UKI 封装了内核参数，则 UEFI 固件会无视外部传入的其余参数。
 
 ### ii. 预设文件
-编辑`/etc/mkinitcpio.d/linux.preset`。我们前面说过「玩点花活」，就在这里玩。
+编辑`/etc/mkinitcpio.d/linux.preset`。我们前面说过「不走寻常路」，关键就在这里。
 
-下面是我自用的`linux.preset`。~~不玩花活的话别抄我的。~~
+下面是我自用的`linux.preset`。~~想走寻常路的话还是抄别人的预设吧。~~
 ```properties
 # mkinitcpio preset file for the 'linux' package
 
@@ -200,14 +210,13 @@ fallback_options="-S autodetect"
 > 有的教程会出现`ALL_microcode=(/boot/*-ucode.img)`这一句。
 > 这种指定微码的方法已经废弃，`/etc/mkinitcpio.conf`已经有针对微码的 Hook 了，无需手动指定。
 
-接下来我们来解释下花活怎么玩的。
-
 正常来说 UKI 均会输出到`/efi/EFI/Linux/arch-linux*.efi`，据称`systemd-boot`可以扫到并引导 UKI。
-但生成`bootx64.efi`让固件去加载不更直接？所以我选择直接导出到回退路径，如此连`efibootmgr`都不需要了。  
-另一方面，`fallback`也会生成 UKI，但`bootx64.efi`只有一个。注意到之前 EFIStub 一节我只给`initramfs-linux`构建原生启动项，那么`fallback`自然打入冷宫。
+但生成`bootx64.efi`让固件去加载不更直接？所以我选择直接导出到回退路径，如此连`efibootmgr`都不需要了。
+
+另一方面，`fallback`也会生成 UKI，但`bootx64.efi`只有一个。注意到之前 EFIStub 一节我只给`initramfs-linux`构建了原生启动项，那么`fallback`自然丢回`/boot`里不管它。
 
 > [!note]
-> 把`fallback`移回`/boot`还有一重原因：尽量缩减 ESP 分区体积。本来`/efi`设计也有减小 ESP 分区大小的意图。
+> 把`fallback`移回`/boot`还有一重原因：尽量缩减 ESP 分区体积——本来`/efi`设计上也有减小 ESP 分区大小的意图。
 > 我试跑完发现`fallback.efi`高达 140+MB，而`arch-linux.efi`不过 30MB。
 >
 > 当然，保险起见，我并没有尝试`default`生成 UKI、`fallback`仍生成内存盘的做法，也没有试图把`fallback`预设直接干掉。
@@ -219,11 +228,11 @@ fallback_options="-S autodetect"
 mkdir -p /efi/EFI/BOOT/
 mkinitcpio -p linux
 ```
-还是那句话，不玩花活不要学我。
+还是那句话，想循规蹈矩的不要学我。
 
 ---
 
-建完之后退出系统，LiveCD 关机，重启按快捷键进入启动菜单，这下该有你硬盘的 UEFI 回退路径启动项了：
+建完之后退出系统，重启按快捷键进入启动菜单，这下该有你硬盘的 UEFI 回退路径启动项了：
 ```
 HDD: PM8512GPKTCB4BACE-E162
 ```
