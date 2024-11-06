@@ -296,4 +296,4 @@ sudo pacman -R fcitx
 ---
 
 至此，Arch 的安装告一段落，你可以像捣腾 Windows 那样玩转 Arch 了。  
-日常使用的一些注意事项我会贴在下一篇[「配置指南」](ArchLinuxConfig.md)中，就不在这里占用太多篇幅了。
+日常使用的一些注意事项我会贴在下一篇[《配置指南》](ArchLinuxConfig.md)中，就不在这里占用太多篇幅了。

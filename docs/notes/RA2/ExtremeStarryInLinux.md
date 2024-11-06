@@ -78,7 +78,7 @@ unzip -O GBK -o '~/Documents/0.6.2 离线更新包.zip' -d './Extreme Starry'
 更多细节还请自行`unzip -h`。虽然解说都是英文。
 :::
 
-如果你不仅仅打算玩「星辰之光」，还想尝试别的 mod 的话，推荐你把公用的文件用「软链接」的方式共享。
+如果你不仅仅打算玩「星辰之光」，还想尝试别的 mod 的话，推荐你把公用的文件用**软链接**的方式共享。
 
 ::: tip 软链接
 Linux 的文件管理思路与 Windows 不太一样，喜欢「复用」，也就是用软链接实现文件的共享。  
@@ -88,7 +88,7 @@ ln -s src dst
 ```
 
 尽管不同红警 2 mod 的包体各有差异，但这 7 个文件是大部分 mod 必需的：
-`binkw32.dll` `blowfish.dll` `gamemd.exe` `language.mix` `langmd.mix` `ra2.mix` `ra2md.mix`。我们完全可以在不同 mod 之间「复用」它们：
+`binkw32.dll` `blowfish.dll` `gamemd.exe` `language.mix` `langmd.mix` `ra2.mix` `ra2md.mix`。我们完全可以在不同 mod 之间复用它们：
 
 ```sh
 ln -s ~/Documents/cnc2yuri/ra2.mix ~/Documents/MentalOmega330Mod/ra2.mix

@@ -24,7 +24,7 @@ export default hopeTheme(
 
     // 博客相关
     blog: {
-      description: "一个业余臭写脚本的编程爱好者，会的不多。",
+      description: "主包不知道在写些什么。",
       // intro: "/intro.html",
       medias: {
         // Baidu: "https://example.com",

@@ -1,14 +1,13 @@
 <template>
   <BlogWrapper>
     <div class="vp-page vp-blog">
-      <!-- Maybe API updated. -->
       <BlogHero>
-        <!-- <template #heroInfo="{ tagline, isFullScreen, text, alt }">
+        <template #info="{ tagline, isFullScreen, text, alt }">
           <HitokotoBlogHero v-if="text" :text="text" :alt="alt" />
         </template>
-        <template #heroBg>
+        <template #bg>
           <BingHeroBackground />
-        </template> -->
+        </template>
       </BlogHero>
       <div class="blog-page-wrapper">
         <main id="main-content" class="vp-blog-main friends round-avatar">
@@ -37,8 +36,8 @@ import InfoPanel from 'vuepress-theme-hope/blog/components/InfoPanel.js'
 import ProjectPanel from 'vuepress-theme-hope/blog/components/ProjectPanel.js'
 import MarkdownContent from 'vuepress-theme-hope/components/MarkdownContent.js'
 import { DropTransition } from 'vuepress-theme-hope/components/transitions/DropTransition.js'
-// import BingHeroBackground from 'vuepress-theme-hope/presets/BingHeroBackground.js'
-// import HitokotoBlogHero from 'vuepress-theme-hope/presets/HitokotoBlogHero.js'
+import BingHeroBackground from 'vuepress-theme-hope/presets/BingHeroBackground.js'
+import HitokotoBlogHero from 'vuepress-theme-hope/presets/HitokotoBlogHero.js'
 
 import 'vuepress-theme-hope/modules/blog/styles/home.scss'
 import friends from "../friends"
