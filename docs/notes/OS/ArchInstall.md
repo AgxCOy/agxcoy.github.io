@@ -240,7 +240,7 @@ KDE 的默认 Breeze 主题锁屏时大概率会出现黑屏、惟有鼠标的�
 
 ### 5.2 硬件（二）显卡驱动与蓝牙
 
-> “so NVIDIA, F**K YOU! ” —— Linus Torvalds
+> “so NVIDIA, F**K YOU! ”——Linus Torvalds
 
 AMD 或 NVIDIA 显卡可参见律回指南[6.4 小节「显卡驱动安装」](https://www.glowmem.com/archives/archlinux-note#toc-head-11)
 和 Miku 版指南的[新手进阶—显卡驱动](https://arch.icekylin.online/guide/rookie/graphic-driver.html)篇。

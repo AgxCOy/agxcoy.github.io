@@ -103,7 +103,7 @@ Grub 本身写入 ESP 的内容不多，配置啊、Linux 内核啊都在`/boot`
 > An EFI boot stub (aka EFI stub) is **a kernel that is an EFI executable**,
 > i.e. that can directly be booted from the UEFI.
 > ::: right
-> —— [Arch Wiki: EFIStub](https://wiki.archlinux.org/title/EFISTUB)
+> ——[Arch Wiki: EFIStub](https://wiki.archlinux.org/title/EFISTUB)
 > :::
 
 根据 Wiki，**默认情况下** Arch Linux 的内核本身就是可启动 EFI，只是需要附加[**内核参数**](https://wiki.archlinux.org/title/Kernel_parameters#Parameter_list)：
@@ -147,9 +147,9 @@ sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
 ## 统一内核映像（UKI）
 在应用 EFIStub 的时候我就在想，有没有可能写一个`bootx64.efi`，直接带内核参数启动`vmlinuz-linux`呢。后面偶然找到了「统一内核映像」的介绍，豁然开朗。
 
-> A unified kernel image (UKI) is a **single executable** which can be **booted directly from UEFI firmware**, or automatically **sourced by boot loaders with little or no configuration**.
+> A unified kernel image (UKI) is a **single executable** which can be **booted directly from UEFI firmware**, or automatically sourced by boot loaders with little or no configuration.
 > ::: right
-> —— [Arch Wiki: Unified Kernel Image](https://wiki.archlinux.org/title/Unified_kernel_image)
+> ——[Arch Wiki: Unified Kernel Image](https://wiki.archlinux.org/title/Unified_kernel_image)
 > :::
 
 根据介绍，UKI 实际上就是将内核引导的资源整合起来，打包而成的 EFI 可执行文件。某种意义上这也算是一种「固件直接引导」，只不过 EFIStub 只创建原生启动项，而它两种启动项都可以做。
@@ -164,7 +164,7 @@ sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
 - 【可选】CPU 微码
 - 【可选】描述信息、启动屏幕图、设备树……（不重要）
 
-只要集成了 EFI 执行代码和 Linux 内核，就已经可以称作「统一内核映像」了。
+只要集成了 EFI 执行代码和 Linux 内核，就可以称作统一内核映像了。
 :::
 
 接下来以`mkinitcpio`为例，但是不走寻常路。

@@ -129,7 +129,7 @@ env HTTP_PROXY=http://localhost:7890 env HTTPS_PROXY=http://localhost:7890 winet
 > 当然可能有的客户端直接用 .NET 6 甚至更高版本，还请具体情况具体分析。  
 > `dotnet48` 指代 .NET Framework 4.8.0（Winetricks 省略 Framework 一词）；  
 > `dotnet7` 则指代 .NET 7.0。  
-> 一般来说，.NET Framework 挑一个最高版本，.NET 挑一个最高版本，应该足够很多 C# 程序使用了。
+> 一般来说，.NET Framework 和 .NET 各挑一个最高版本，应该足够很多 C# 程序使用了。
 
 > [!warning]
 > cnc_ddraw 食用的 d3d9、opengl 和 gdi 渲染**均**无法用于 FA2 地图编辑器，但 wine 内置的 ddraw 可以。
@@ -164,22 +164,18 @@ env HTTP_PROXY=http://localhost:7890 env HTTPS_PROXY=http://localhost:7890 winet
 这里记录一些我遇到的问题，仅供参考。
 
 ### I. Syringe 命令行参数解析失败
-Linux 里允许文件名带双引号`"gamemd".exe`，如此一来在终端里试图用 Syringe 注入会引发歧义：
+Linux 里允许文件名带双引号`"gamemd".exe`，如此一来直接在终端里用 Syringe 注入会引发歧义：
 ```log
-[20:41:50] Syringe 0.7.2.2
-[20:41:50] ===============
-
 [20:41:50] WinMain: arguments = "\"FA2.dat\""
 [20:41:52] WinMain: No or invalid command line arguments given, exiting...
 [20:41:52] WinMain: Exiting on failure.
 ```
-
-解决方法也很简单。官版 Ares 把命令行写在`RunAres.bat`里，我们稍微修改一下它：
+解决方法也很简单。像官版 Ares 一样把命令行写在`.bat`里：
 ```batch
 PUSHD %~dp0
-Syringe.exe "gamemd.exe" -SPEEDCONTROL -CD -LOG
+Syringe.exe "FA2.dat" %*
 ```
-然后就可以`wine cmd /c 'path/to/batch'`了：
+然后`wine cmd /c 'path/to/batch'`就可以了：
 
 ![注意在 cmd 里不要用 ~，Windows 里没这玩意](./syringe_winecmd.webp =50%x50%)
 
@@ -188,17 +184,15 @@ Syringe.exe "gamemd.exe" -SPEEDCONTROL -CD -LOG
 
 当然你也可以试试虚拟机（比较著名的有`winapps`项目），或者干脆 Linux + Windows 双系统。~~亦或者，干脆把 Linux 扬了，不折腾那么多。~~
 
-### III. 尤里的复仇无法正常食用「无边框窗口化」
+### III. 尤里的复仇无法正常「无边框窗口化」
 在更新了 Wine 9.19-1 后，`cnc_ddraw`应该是稳定在 5.0 版本了。这版 ddraw 对于 YR 原生 UI 有一些「不适应」，主要是因为 YR **经常切换分辨率**（好比`800x600`主菜单和`1366x768`战场界面）。
 
 上面第四部分的预览图里可以看出来，与 Windows 里见到的居中不同，Wine 里的`cnc-ddraw`是始终停靠在左上角的。而`gamemd.exe`的这一特性就使得 Wine 里的窗口化乱了套。我这边的症状是`ddraw.ini`里`width` `height` `posX` `posY`这几项设置总是跳变，伴随着游戏界面**显示不全**，或者跟实际按键的位置**有误差**。
 
 在几番尝试之后，我终于还是考虑用`ddraw.ini`里所谓的「无边框」方案：`windowed=true`搭配`fullscreen=true`，同时`border=false`。
 
-### IV. 食用地图编辑器
-目前新世代的地编大家熟知的应该就 World Altering Editor，当然也有过胎死腹中的 RelertSharp。但无论如何，这些 C# 写的地编 Wine 是否支持，犹未可知。
-
-那么还是退而求其次，用那个已经服役了 20 多年的 FA2 罢。当然`FA2sp.dll`肯定是支持的，毕竟都有「星辰之光」「心灵终结 3.3」之类的成功案例了。
+## 补充：地图编辑器
+目前新世代的地编大家熟知的有 World Altering Editor，当然有人可能也听说过 RelertSharp。但无论如何，这些 C# 写的地编 Wine 是否支持，犹未可知。那么还是退而求其次，用那个已经服役了 20 多年的 FA2 罢。当然`FA2sp.dll`肯定是支持的，毕竟都有 ES、MO3.3 之类的成功案例了。
 
 ::: note
 wine 最近几版更新的内置`ddraw.dll`(DxWnd) 都比较抽象，建议是倒退回 9.16-1 食用 FA2：
@@ -210,28 +204,22 @@ sudo downgrade wine
 然后在终端界面里按“上”箭头选到 9.16，回车，然后像正常 pacman 那样操作就好了。
 :::
 
-首先仍然准备好你的地编，注意把`FinalAlert.ini`删了。然后先别急着启动。由于[第一条问题](#i-syringe-命令行参数解析失败)的存在，我们需要稍作修改：
+首先仍然准备好你的地编，注意把`FinalAlert.ini`删了。然后先别急着启动。  
+前面我们说过 cnc-ddraw 无法渲染 FA2 地图预览，所以我们需要另开一个环境跑地编。但如此一来每次跑地编都需要输老长的环境变量，很烦。我们可以用 Shell 脚本来包办这些工作：
 ```bash
 #!/usr/bin/bash
-# 我们不妨直接写成 Shell 脚本，类比 .cmd 直接在 Linux 里跑。
-
 cd /path/to/your/fa2
-if [ ! -f ./FA2.cmd ]; then
-  echo 'Syringe.exe "FA2.dat" %*' > ./FA2.cmd
+echo 'Syringe.exe "FA2.dat" %*' > /tmp/FA2.cmd
+
+export WINEARCH=win32
+export WINEPREFIX=~/.wine32
+if [ ! -d $WINEPREFIX ]; then
+    winetricks fakechinese
 fi
 
-export WINEPREFIX="$HOME/.wine32"
-export WINEARCH=win32
-LANG=zh_CN.UTF-8 wine cmd /c 'FA2.cmd'
+LANG=zh_CN.UTF-8 wine cmd /c 'Z:/tmp/FA2.cmd'
 ```
-需要修改的大致就第 4 行，也就是你地编文件夹的路径。
-
-::: details 拓展内容：Wine 环境变量
-- `WINEPREFIX=/absolute/wine/env/path`决定 wine 执行命令用的哪个环境。默认用`~/.wine`。  
-  如果指定路径的环境不存在，则会自动建立一个。注意手动指定需要绝对路径，至少我用`~`会报错。
-- `WINEARCH=win32`指定 wine 环境的……架构。默认建的`x64`环境，如此指定可以建`x86`，或者说 32 位环境。  
-  据`winetricks`的报告称，32 位 wine 环境通常有更多支持。
-:::
+需要修改的大致就第 2 行，也就是你地编文件夹的路径。
 
 ::: warning
 Linux 里「脚本可执行」也是一项权限，需要用户手动赋予。
