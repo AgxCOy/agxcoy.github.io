@@ -6,14 +6,14 @@ tag:
   - Wine
 ---
 
-# 在 Linux 中游玩「星辰之光」
+# 在 Linux 中游玩《星辰之光》
 
 ## 前言
 
 这篇笔记算是我这阵子折腾 Wine 兼容层的一些小结。
 
 ::: important 前排提醒
-本篇笔记仅以「星辰之光」这个红警 2 模组作为范例，因为它是我这里最早成功跑起来的红警 2 mod。
+本篇笔记仅以《星辰之光》这个红警 2 模组作为范例，因为它是我这里最早成功跑起来的红警 2 mod。
 对于其他 mod，乃至其他游戏和 Windows 程序，本篇笔记的方案可能有一定参考价值，**但不保证能够成功运行**。
 
 另外，本篇笔记的插图原图对于电脑端来说会偏大一些，因此我基本上都做了缩小处理——你可以点击图片查看原图。
@@ -26,10 +26,14 @@ tag:
 - 桌面环境：KDE 6
 
 ## 一、原生 Wine
-之前依照律回指南的推荐折腾了下 Bottles。但遗憾的是，由于 Flatpak 沙箱等因素，它似乎只能运行「星辰之光」，像原版红红、心灵终结 3.3.6 均会在读条时 Fatal Error 弹窗。  
+之前依照律回指南的推荐折腾了下 Bottles。但遗憾的是，由于 Flatpak 沙箱等因素，它似乎只能运行《星辰之光》，像原版红红、心灵终结 3.3.6 均会在读条时 Fatal Error 弹窗。  
 有一天我在玩《多娜多娜》的时候发现需要解决字符编码问题（存档找不到），遂折腾起了原生 Wine。在一番尝试之下，终于得到了更普适红警 2 的原生 Wine 运行方案。
 
+::: warning
+自 Wine 9.17-1 开始，其对于`ddraw.dll`的兼容可以说十分抽象。无论是用于 FA2 地图编辑器的内置 DxWnd，还是 winetricks 找到的 cnc-ddraw 适配，跑起来效果可以说一言难尽。因此**就现阶段而言，不再推荐食用原生 Wine 游玩红红。**
+
 > 对于原生 wine 更详尽的介绍建议查阅[官方英文 Wiki](https://wiki.archlinux.org/title/wine) 和[中文社区的翻译](https://wiki.archlinuxcn.org/wiki/Wine)。
+:::
 
 我这里安装了`wine`^multilib^和`winetricks`^multilib^两个软件包。前者提供最基本的兼容环境，后者则为环境的搭建、管理提供一定辅助。
 ```bash
@@ -51,9 +55,9 @@ sudo pacman -S wine winetricks
 > :::
 
 ## 二、准备游戏文件
-「星辰之光」目前采用 ZIP 压缩包方式分发。在 Windows 中 ZIP 里面文件名是用 ANSI（简中实为 GB2312）编码的，这种编码在 UTF-8 系统中不兼容：
+《星辰之光》目前采用 ZIP 压缩包方式分发。在 Windows 中 ZIP 里面文件名是用 ANSI（简中实为 GB2312）编码的，这种编码在 UTF-8 系统中不兼容：
 
-![反之，UTF-8 强转 GBK 容易出现「锟斤拷」。](./es_archive_gb2312.webp =50%x50%)
+![反之，UTF-8 强转 GBK 容易出现“锟斤拷”。](./es_archive_gb2312.webp =50%x50%)
 
 所以我们在终端里用`unzip`解压：
 
@@ -73,15 +77,15 @@ unzip -O GBK -o '~/Documents/0.6.2 离线更新包.zip' -d './Extreme Starry'
 - `/path/to/zip`：zip 路径。
 > 遇到空格需要加反斜杠转义，或者像我那样直接打引号。
 - `-d extract_dir`：解压到单独的文件夹。
-> 像上面离线包直接解压出来是散装跟`Extreme Starry`并列放的。而`~/Documents`可能不止放「星辰之光」。
+> 像上面离线包直接解压出来是散装跟`Extreme Starry`并列放的。而`~/Documents`可能不止放《星辰之光》。
 
 更多细节还请自行`unzip -h`。虽然解说都是英文。
 :::
 
-如果你不仅仅打算玩「星辰之光」，还想尝试别的 mod 的话，推荐你把公用的文件用**软链接**的方式共享。
+如果你不仅仅打算玩《星辰之光》，还想尝试别的 mod 的话，推荐你把公用的文件用**软链接**的方式共享。
 
 ::: tip 软链接
-Linux 的文件管理思路与 Windows 不太一样，喜欢「复用」，也就是用软链接实现文件的共享。  
+Linux 的文件管理思路与 Windows 不太一样，喜欢“复用”，也就是用软链接实现文件的共享。  
 在 Linux Shell 里，`ln`命令用来创建链接（和 Windows CMD 的`mklink`命令类似）：
 ```sh
 ln -s src dst
@@ -109,7 +113,7 @@ env HTTP_PROXY=http://localhost:7890 env HTTPS_PROXY=http://localhost:7890 winet
 
 ![Winetricks（中文有点搞）](./winetricks_1.webp =50%x50%)
 
-上面我们让 wine 建过默认容器，直接「选择默认的 Wine 容器」OK 就可以了。
+上面我们让 wine 建过默认容器，直接“选择默认的 Wine 容器”，OK 就可以了。
 
 ### I. 安装 Windows DLL 或组件
 点进去选中上述小标题那项，OK 再进一层界面。
@@ -125,7 +129,7 @@ env HTTP_PROXY=http://localhost:7890 env HTTPS_PROXY=http://localhost:7890 winet
 > 用于 DirectX 转 Vulkan，否则客户端、Reshade 特效等无法显示
 - `dxvk_nvapi????`（问号表示只看最新版，下同）
 > NVIDIA 显卡推荐用这个，不行再考虑上一个
-- `dotnet48`（「星辰之光」等客户端需要）
+- `dotnet48`（《星辰之光》等客户端需要）
 > 当然可能有的客户端直接用 .NET 6 甚至更高版本，还请具体情况具体分析。  
 > `dotnet48` 指代 .NET Framework 4.8.0（Winetricks 省略 Framework 一词）；  
 > `dotnet7` 则指代 .NET 7.0。  
@@ -158,7 +162,7 @@ env HTTP_PROXY=http://localhost:7890 env HTTPS_PROXY=http://localhost:7890 winet
 
 在做完全部配置之后，便可以启动游戏了：
 
-![在 Arch 里玩「星辰之光」训练关](./gamemd_archlinux.webp)
+![在 Arch 里玩《星辰之光》训练关](./gamemd_archlinux.webp)
 
 ## 五、注意事项
 这里记录一些我遇到的问题，仅供参考。
@@ -184,12 +188,12 @@ Syringe.exe "FA2.dat" %*
 
 当然你也可以试试虚拟机（比较著名的有`winapps`项目），或者干脆 Linux + Windows 双系统。~~亦或者，干脆把 Linux 扬了，不折腾那么多。~~
 
-### III. 尤里的复仇无法正常「无边框窗口化」
+### III. 尤里的复仇无法正常“无边框窗口化”
 在更新了 Wine 9.19-1 后，`cnc_ddraw`应该是稳定在 5.0 版本了。这版 ddraw 对于 YR 原生 UI 有一些「不适应」，主要是因为 YR **经常切换分辨率**（好比`800x600`主菜单和`1366x768`战场界面）。
 
 上面第四部分的预览图里可以看出来，与 Windows 里见到的居中不同，Wine 里的`cnc-ddraw`是始终停靠在左上角的。而`gamemd.exe`的这一特性就使得 Wine 里的窗口化乱了套。我这边的症状是`ddraw.ini`里`width` `height` `posX` `posY`这几项设置总是跳变，伴随着游戏界面**显示不全**，或者跟实际按键的位置**有误差**。
 
-在几番尝试之后，我终于还是考虑用`ddraw.ini`里所谓的「无边框」方案：`windowed=true`搭配`fullscreen=true`，同时`border=false`。
+在几番尝试之后，我终于还是考虑用`ddraw.ini`里所谓的“无边框”方案：`windowed=true`搭配`fullscreen=true`，同时`border=false`。
 
 ## 补充：地图编辑器
 目前新世代的地编大家熟知的有 World Altering Editor，当然有人可能也听说过 RelertSharp。但无论如何，这些 C# 写的地编 Wine 是否支持，犹未可知。那么还是退而求其次，用那个已经服役了 20 多年的 FA2 罢。当然`FA2sp.dll`肯定是支持的，毕竟都有 ES、MO3.3 之类的成功案例了。
@@ -222,7 +226,7 @@ LANG=zh_CN.UTF-8 wine cmd /c 'Z:/tmp/FA2.cmd'
 需要修改的大致就第 2 行，也就是你地编文件夹的路径。
 
 ::: warning
-Linux 里「脚本可执行」也是一项权限，需要用户手动赋予。
+Linux 里“脚本可执行”也是一项权限，需要用户手动赋予。
 
 ![以 Dolphin 文件管理器为例](./kde_permission_executable.webp =25%x25%)
 :::

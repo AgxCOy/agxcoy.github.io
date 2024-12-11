@@ -13,8 +13,8 @@ tag:
 
 由于我对 Linux 乃至整个 UEFI 的启动机制尚且「浅尝辄止」，本文并不会展开很多硬核内容，只是对我个人使用过的启动方案做个总结。
 
-::: tip 「引导」和「启动」
-在维基百科中二者似乎是同一概念，搜索「启动程序」会跳转到[「引导程序」](https://zh.wikipedia.org/wiki/%E5%95%9F%E5%8B%95%E7%A8%8B%E5%BC%8F)的介绍。
+::: tip 引导和启动
+在维基百科中二者似乎是同一概念，搜索“启动程序”会跳转到[“引导程序”](https://zh.wikipedia.org/wiki/%E5%95%9F%E5%8B%95%E7%A8%8B%E5%BC%8F)的介绍。
 
 > 另见英文维基：[Booting](https://en.wikipedia.org/wiki/Booting)
 
@@ -25,7 +25,7 @@ tag:
 
 ## UEFI 启动简述：启动项管理
 
-> UEFI 规范定义了名为「UEFI 启动管理器」的一项功能 …… 是一种固件策略引擎，可通过修改固件架构中定义的全局 NVRAM 变量来进行配置。启动管理器将尝试按全局 NVRAM 变量定义的顺序依次加载 UEFI 驱动和 UEFI 应用程序（包括 UEFI 操作系统启动装载程序）。……
+> UEFI 规范定义了名为“UEFI 启动管理器”的一项功能 …… 是一种固件策略引擎，可通过修改固件架构中定义的全局 NVRAM 变量来进行配置。启动管理器将尝试按全局 NVRAM 变量定义的顺序依次加载 UEFI 驱动和 UEFI 应用程序（包括 UEFI 操作系统启动装载程序）。……
 > ::: right
 > ——[（译）UEFI 启动：实际工作原理](https://www.cnblogs.com/mahocon/p/5691348.html)
 > :::
@@ -37,7 +37,7 @@ tag:
 
 事实上，Windows Boot Manager 是系统安装完成后，**初次加载系统时**为其创建的原生启动项。它明确指出需要启动**指定设备中**的**指定引导文件**（即`bootmgfw.efi`）。
 
-即便 WinToGo 也是如此——在初次以 U 盘身份进入 WTG 系统时，Windows 也会为该设备作配置——所谓「正在准备设备」。在此过程中，顺带把原生启动项建立好。然后重启之后再按快捷键进入启动菜单，你**可能**会在**部分主板上**发现有两个启动项，指向同一个设备：
+即便 WinToGo 也是如此——在初次以 U 盘身份进入 WTG 系统时，Windows 也会为该设备作配置——所谓“正在准备设备”。在此过程中，顺带把原生启动项建立好。然后重启之后再按快捷键进入启动菜单，你**可能**会在**部分主板上**发现有两个启动项，指向同一个设备：
 ```
 Windows Boot Manager ( Koi Series Pro ...)
 USB HDD: Koi Series Pro ...
@@ -45,7 +45,7 @@ USB HDD: Koi Series Pro ...
 需要注意的是，原生启动项是**存储在主板里的**（更准确的说，是全局 NVRAM 变量）。这多少可以解释为什么 Grub 引导那么脆弱（
 
 ### ii. 回退路径启动项
-对于 WinPE、Windows 安装镜像而言，它们并非用于长线运行，往往没有「准备设备」的步骤，那么 UEFI 如何认出它们捏？  
+对于 WinPE、Windows 安装镜像而言，它们并非用于长线运行，往往没有“准备设备”的步骤，那么 UEFI 如何认出它们捏？  
 还记得上面提到的同一设备双启动项吗？UEFI 固件是能够找到可启动设备，并且尝试启动的。但它是依据什么去找的捏？
 
 UEFI 固件首先会**遍历各硬盘的 ESP 分区**，并在其中查找`\EFI\BOOT\boot{cpu_arch}.efi`。前面的这一固定路径就称为**回退路径**，通过查找回退路径建立的启动项就称作**回退路径启动项**。其中，`cpu_arch`即 CPU 架构，已知的有：
@@ -74,7 +74,7 @@ UEFI 固件首先会**遍历各硬盘的 ESP 分区**，并在其中查找`\EFI\
 
 启动加载器本身作为跳板，被 UEFI 固件加载后，需要根据配置找到真正的 Linux 内核，并经由内核引导用户硬盘上的 Arch 系统。而在 Windows 中，`bootmgfw.efi`会根据`BCD`配置文件，执行硬盘其中一个 Windows 副本中的`winload.exe`，并将该副本的其余加载流程交给它完成。
 
-正常使用 Windows 单系统的用户可能对启动过程并无察觉，因为 Windows 为了确保能够启动，会时不时刷新启动项。但一旦与 Linux 混用，你就需要**留意 Linux 的加载器会不会被 Windows 刷下去（甚至被覆盖）**。除此之外，尽管因「机」而异，但 UEFI 固件**有可能会自动清理不再可用的启动项**。比如重新插拔固态，有可能会出现掉引导的情况。因此就个人来说，我不会再考虑 bootloader 了。
+正常使用 Windows 单系统的用户可能对启动过程并无察觉，因为 Windows 为了确保能够启动，会时不时刷新启动项。但一旦与 Linux 混用，你就需要**留意 Linux 的加载器会不会被 Windows 刷下去（甚至被覆盖）**。除此之外，尽管因“机”而异，但 UEFI 固件**有可能会自动清理不再可用的启动项**。比如重新插拔固态，有可能会出现掉引导的情况。因此就个人来说，我不会再考虑 bootloader 了。
 
 ### i. 修复 Grub 引导
 Windows 启不动我们会尝试修复引导，Arch 亦然。修复 Grub 引导实际上就是**重走 Grub 安装流程**：
@@ -124,7 +124,7 @@ Grub 等启动加载器的本职工作就是帮你引导内核，因此它们的
   一个`.img`一条`initrd=`，路径用`\`分隔，顺序自左向右（可以参见 grub 的配置文件）
 
 > [!note]
-> 个人觉得这里 initrd 称作「初始化映像」更合适，毕竟需要填`.img`嘛。
+> 个人觉得这里 initrd 称作“初始化映像”更合适，毕竟需要填`.img`嘛。
 :::
 
 LiveCD 里的`efibootmgr`工具可以直接操作固件的启动项。当然若是遵照律回指南和 Miku 指南，那么`efibootmgr`业已安装到你的系统中，你可以在运行中的本机 Arch 系统中折腾：
@@ -145,7 +145,7 @@ sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
 归根结底，EFIStub 代替了启动加载器，由我们用户手动建立 UEFI 原生启动项。但这种方式硬要说优点吧……可能也就比 Grub 快那么几秒而已。维护起来并不比 Grub 轻松多少。
 
 ## 统一内核映像（UKI）
-在应用 EFIStub 的时候我就在想，有没有可能写一个`bootx64.efi`，直接带内核参数启动`vmlinuz-linux`呢。后面偶然找到了「统一内核映像」的介绍，豁然开朗。
+在应用 EFIStub 的时候我就在想，有没有可能写一个`bootx64.efi`，直接带内核参数启动`vmlinuz-linux`呢。后面偶然找到了“统一内核映像”的介绍，豁然开朗。
 
 > A unified kernel image (UKI) is a **single executable** which can be **booted directly from UEFI firmware**, or automatically sourced by boot loaders with little or no configuration.
 > ::: right
@@ -157,7 +157,7 @@ sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \
 ::: info UKI 通常包含……
 > 摘自 [UAPI Group Specifications](https://uapi-group.org/specifications/specs/unified_kernel_image/)。
 
-- EFI 执行代码（决定它「可执行 EFI」的本质）
+- EFI 执行代码（决定它“可执行 EFI”的本质）
 - Linux 内核
 - 【可选】内核参数
 - 【可选】初始化内存盘
@@ -182,7 +182,7 @@ echo 'root=UUID=... resume=UUID=... rw loglevel=3 quiet' > /etc/kernel/cmdline
 与 EFIStub 不同，这里不需要指定`initrd=`——工具会自己打包。
 
 > [!warning]
-> 若启用「安全启动」，且 UKI 封装了内核参数，则 UEFI 固件会无视外部传入的其余参数。
+> 若启用“安全启动”，且 UKI 封装了内核参数，则 UEFI 固件会无视外部传入的其余参数。
 
 ### ii. 预设文件
 编辑`/etc/mkinitcpio.d/linux.preset`。我们前面说过「不走寻常路」，关键就在这里。
