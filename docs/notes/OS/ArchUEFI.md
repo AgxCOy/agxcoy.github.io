@@ -21,7 +21,7 @@ tag:
 国内很多折腾 WinPE 的人（包括我）对此也并没有很明确的区分；当然有些博客则对开机装载 Linux 的过程拆分成引导、启动两个阶段。本文为了方便起见，用词不作区分。
 :::
 
-此「实验」原本只是[《Arch Linux 配置小贴士》](./ArchLinuxConfig.md)的其中一个议题。在此感谢岛风 [@frg2089](https://github.com/frg2089) 指路。
+在此感谢岛风 [@frg2089](https://github.com/frg2089) 指路。
 
 ## UEFI 启动简述：启动项管理
 

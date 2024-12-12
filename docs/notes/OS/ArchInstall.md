@@ -17,7 +17,7 @@ star: true
 ::: details 我选择 Arch 的理由
 1. 比起“服务”，我还是更倾向于把操作系统当作纯正的工具。可能这就是旧信息时代遗老吧。
 2. “缘，妙不可言”。
-3. 具体工作具体分析吧。跨平台开发 Arch 也挺舒服的。但 Office、Adobe 全家桶就不适合它了。
+3. 具体工作具体分析吧。跨平台开发 Arch 也挺舒服的。但 Adobe 全家桶就显然不适合了。
 :::
 
 其实这篇笔记说是“流程”，更像是“避坑指南”。因为文中大部分实际操作步骤都是直接贴的参考外链。
@@ -196,7 +196,7 @@ sudo pacman -S pipewire gst-plugin-pipewire pipewire-alsa pipewire-jack pipewire
 - `pipewire-pulse` → `pulseaudio`
 - `wireplumber` → `pipewire-media-session`（pipewire 弃用）
 
-> 由于 pipewire 那边有 wireplumber 代替 pipewire-media-session，所以这个包被他们自行标记为“过时”。  
+> 由于 pipewire 那边有 wireplumber 代替，所以这个包被他们自行标记为“过时”。  
 > 但 pulseaudio 仍需要这个包。
 :::
 
@@ -254,7 +254,7 @@ AMD 或 NVIDIA 显卡可参见律回指南[6.4 小节「显卡驱动安装」](h
 ```bash
 sudo systemctl enable --now bluetooth
 ```
-> 之前误以为`bluetooth`是 Arch 本身就有的服务，查阅 Miku 版指南结合实测发现是 KDE 提供的。
+> 之前误以为`bluetooth`是 Arch 本身就有的服务，结果发现是桌面环境依赖了蓝牙组件包。
 
 ### 5.3 额外中文字体和输入法
 
@@ -293,7 +293,88 @@ sudo pacman -R fcitx
 不用递归移除`-Rs`的原因是，递归可能移除掉你不希望干掉的包依赖。
 :::
 
+至此，Arch 的安装告一段落，你可以像捣腾 Windows 那样玩转 Arch 了。
+
 ---
 
-至此，Arch 的安装告一段落，你可以像捣腾 Windows 那样玩转 Arch 了。  
-日常使用的一些注意事项我会贴在下一篇[《配置指南》](ArchLinuxConfig.md)中，就不在这里占用太多篇幅了。
+## 附录：系统美化
+
+> “爱美之心，人皆有之。”
+
+> [!tip]
+> - **风格统一**是美观的必要条件。
+> - 少搞「侵入性」美化。或者说，需要**修改系统文件、注入系统进程、破坏系统稳定的美化尽量少做**。
+> - **谨遵发布页面附送的安装指引**（KDE、GNOME 主题可以参考项目 GitHub），否则可能安装不全。
+
+### I. 主题
+主题这边我也没啥好推荐的，虽然 KDE 6 现在也出现了一些比较好看的主题，但终究是因人而异吧。
+
+我想说明的是，KDE 商店的多数主题在 **X11 会话、125% 甚至更高缩放率**下会出现“非常粗窗口边框，使我的窗口肥胖”的现象（至少我的笔记本如此）。  
+我个人目前是直接修改主题 Aurorae 配置文件，利用二分法逐步找到四条边的最适 Padding。
+网上貌似也有“把缩放调回 100%，但是更改字体 DPI”的做法，但个人觉得显示效果应该好不到哪去（
+
+### II. 仿 Mac 上下双栏布局
+KDE 原生的桌面 UI 就挺 Windows 的，但胜在自由度足够高。
+我**个人觉得** Mac OS 那种双栏比较好看、比较方便，所以稍微按照如下配置调整了面板布局。
+
+仅供参考咯。
+
+::: details Dock 栏
+即原本的任务栏。
+- 位于底部、居中、适宜宽度、取消悬浮、避开窗口
+- 除“图标任务管理器”外，其余组件全部移除。
+:::
+
+::: details Finder 栏
+即“应用程序菜单栏”（可在 *编辑模式—添加面板* 处找到）
+- 位于顶部、居中、填满宽度、取消悬浮、常驻显示
+- 自左到右依次为：
+  - 应用程序启动器（类比开始菜单）
+  - 窗口列表
+  - 全局菜单（默认提供）
+  - “面板间距”留白
+  - 数字时钟
+    - 日期保持在时间旁边，而不是上下两行
+    - 字号略小于菜单栏高度，凭感觉捏
+  - “面板间距”留白
+  - 系统监视传感器
+    - 横向柱状图（平均 CPU 温度、最高 CPU 温度）
+    - 仅文字（网络上行、下行速度；网络上传、下载的总流量）
+  - 系统托盘
+:::
+
+除了 Finder 栏外，可以在系统设置里更改屏幕四周的鼠标表现。
+比如，鼠标移动到左上角可以自动弹出“应用程序启动器”，移到右上角可以切换你的桌面，等等。
+
+## 附录：GPG 密钥配置
+主要讨论配置提交签名（Commit Signing）时遇到的问题。
+
+### I. VSCode 提交签名
+大体上跟着 [Commit Signing - VSCode Wiki](https://github.com/microsoft/vscode/wiki/Commit-Signing) 就可以了。唯一需要留意的是`pinentry`。
+
+VSCode 的主侧栏“源代码管理”页提交时并不会走终端，也就莫得 pinentry 的 CUI；莫得 pinentry 输密码验证，提交就签不了名。
+虽然有人好像搞了个`pinentry-extension`出来，但 6 月初我去看的时候它连说明书都莫得，也没有上架，那用集贸。
+
+所以我选择编辑`~/.gnupg/gpg-agent.conf`：
+```properties
+default-cache-ttl 28800
+pinentry-program /usr/bin/pinentry-qt
+```
+保存后重启`gpg-agent`：`gpg-connect-agent reloadagent /bye`。
+
+虽然这么搞反倒在 SSH 上用不了了，但我平时还是用 KDE 图形界面比较多。
+
+### II. GPG 密钥备份（导出导入）
+之前并没有意识到备份 key 的重要性，结果重装 Arch 重新配置提交签名时，
+我发现 GitHub 和腾讯 Coding 会重置提交验证（同一个邮箱只能上传一个公钥），届时就是我痛苦的 rebase 重签了。
+~~不过好在受影响的多数只是我的个人项目，变基无伤大雅。~~
+```bash
+gpg --list-secret-keys --keyid-format LONG
+# export
+gpg -a -o public-file.key --export <keyid>
+gpg -a -o private-file.key --export-secret-keys <keyid>
+# import
+gpg --import ~/public-file.key
+gpg --allow-secret-key-import --import ~/private-file.key
+```
+重新导入 Key 之后，可能还需要`gpg --edit-key`更改密码（`passwd`）、重设信任（`trust`）。
