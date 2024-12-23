@@ -89,11 +89,12 @@ export default hopeTheme(
         excerptLength: 0,
       },
 
-      docsearch: {
-        apiKey: '7e9308da1effc6ec3745495e3b951e18',
-        appId: 'HPNJSNFHQV',
-        indexName: 'chloridepio'
-      },
+      // 暂时挂逼
+      // docsearch: {
+      //   apiKey: '',
+      //   appId: '',
+      //   indexName: ''
+      // },
 
       // 启用之前需安装 @waline/client
       // 警告: 这是一个仅供演示的测试服务，在生产环境中请自行部署并使用自己的服务！
