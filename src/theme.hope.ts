@@ -4,14 +4,17 @@ import sidebar from "./sidebar.js";
 
 export default hopeTheme(
   {
-    hostname: "https://chloridep.github.io/blogs",
+    hostname: "https://chloridep.github.io",
+
     author: {
       name: "Kariko Lin",
       url: "https://github.com/ChlorideP",
     },
     iconAssets: "fontawesome-with-brands",
     logo: "/assets/images/avatar.webp",
-    repo: "ChlorideP/blogs",
+
+    repo: "ChlorideP/chloridep.github.io",
+
     docsDir: "docs",
 
     // 导航栏
