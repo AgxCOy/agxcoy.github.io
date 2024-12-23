@@ -4,13 +4,13 @@ export default sidebar({
   "/": [
     // "",
     {
-      text: "结论归档",
+      text: "综述",
       icon: "folder-open",
       prefix: "archives/",
       children: "structure",
     },
     {
-      text: "实验笔记",
+      text: "随记",
       icon: "book",
       prefix: "notes/",
       children: "structure",

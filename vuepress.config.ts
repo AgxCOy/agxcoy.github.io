@@ -5,8 +5,8 @@ export default defineUserConfig({
   base: "/",
 
   lang: "zh-CN",
-  title: "氯离子实验室",
-  description: "这人总是捣鼓些奇奇怪怪的东西呢。",
+  title: "氯喵の笔记本",
+  description: "拾人牙慧，毫无创见。",
 
   temp: ".temp",
   cache: ".cache",

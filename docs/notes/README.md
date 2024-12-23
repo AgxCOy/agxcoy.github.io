@@ -1,5 +1,5 @@
 ---
-title: 实验笔记
+title: 随记
 index: false
 article: false
 timeline: false

@@ -26,7 +26,7 @@ star: true
 > [!important]
 > 由于 Arch 更迭速度比较快，下面的参考链接以及这篇笔记本身的内容可能随时失效。  
 > 在安装、使用过程中遇到的，这里没有提及的问题，还请自行 Google、Bing 或 Baidu。
-> > 话虽如此，我还是会尽量保持本文的更新；如有需要，也可以[提 Issues](https://github.com/ChlorideP/ChlorideP.github.io/issues)。
+> > 话虽如此，我还是会尽量保持本文的更新；如有需要，也可以[提 Issues](https://github.com/NyaCl/nyacl.github.io/issues)。
 >
 > 如果你觉得 Arch 滚动更新很累、玩不太明白，不妨还是先上手`Pop!_OS`或者`Ubuntu`。
 >

@@ -4,16 +4,16 @@ import sidebar from "./sidebar.js";
 
 export default hopeTheme(
   {
-    hostname: "https://chloridep.github.io",
+    hostname: "https://nyacl.github.io",
 
     author: {
-      name: "Kariko Lin",
-      url: "https://github.com/ChlorideP",
+      name: "NyaCl",
+      url: "https://github.com/NyaCl",
     },
     iconAssets: "fontawesome-with-brands",
     logo: "/assets/images/avatar.webp",
 
-    repo: "ChlorideP/chloridep.github.io",
+    repo: "NyaCl/nyacl.github.io",
 
     docsDir: "docs",
 
@@ -42,7 +42,7 @@ export default hopeTheme(
         // Flipboard: "https://example.com",
         // Gitee: "https://example.com",
         GitHub: "https://github.com/ChlorideP",
-        Gitlab: "https://gitlab.com/ChlorideP",
+        // Gitlab: "https://gitlab.com/ChlorideP", // obsolete due to GitLab policy.
         // Gmail: "mailto:info@example.com", // keep private
         // Instagram: "https://example.com",
         // Lark: "https://example.com",
