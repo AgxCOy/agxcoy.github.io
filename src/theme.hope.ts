@@ -4,7 +4,7 @@ import sidebar from "./sidebar.js";
 
 export default hopeTheme(
   {
-    hostname: "https://nyacl.github.io",
+    hostname: "https://nyacl.shimakaze.org",
 
     author: {
       name: "NyaCl",
