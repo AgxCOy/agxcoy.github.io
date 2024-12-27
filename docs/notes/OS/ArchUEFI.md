@@ -185,7 +185,7 @@ echo 'root=UUID=... resume=UUID=... rw loglevel=3 quiet' > /etc/kernel/cmdline
 > 若启用“安全启动”，且 UKI 封装了内核参数，则 UEFI 固件会无视外部传入的其余参数。
 
 ### ii. 预设文件
-编辑`/etc/mkinitcpio.d/linux.preset`。我们前面说过「不走寻常路」，关键就在这里。
+编辑`/etc/mkinitcpio.d/linux.preset`。我们前面说过“不走寻常路”，关键就在这里。
 
 下面是我自用的`linux.preset`。~~想走寻常路的话还是抄别人的预设吧。~~
 ```properties
