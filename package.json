@@ -14,8 +14,8 @@
     "@vuepress/bundler-vite": "2.0.0-rc.13",
     "@vuepress/plugin-docsearch": "2.0.0-rc.34",
     "@vuepress/plugin-pwa": "2.0.0-rc.34",
-    "katex": "^0.16.11",
-    "vue": "^3.4.29",
+    "katex": "^0.16.19",
+    "vue": "^3.5.13",
     "vuepress": "2.0.0-rc.13",
     "vuepress-theme-hope": "2.0.0-rc.48"
   },
