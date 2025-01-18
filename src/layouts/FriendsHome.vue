@@ -46,8 +46,9 @@ import friends from "../friends"
 <style lang="scss">
 main.friends.round-avatar {
   .vp-project-card {
-    img.vp-project-image {
+    img.vp-project-icon {
       border-radius: 9999px;
+      height: 2em;
     }
     width: calc(50% - 40px);
 

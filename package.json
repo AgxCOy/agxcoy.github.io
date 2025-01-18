@@ -11,13 +11,13 @@
     "docs:update-package": "pnpm dlx vp-update"
   },
   "devDependencies": {
-    "@vuepress/bundler-vite": "2.0.0-rc.13",
-    "@vuepress/plugin-docsearch": "2.0.0-rc.34",
-    "@vuepress/plugin-pwa": "2.0.0-rc.34",
-    "katex": "^0.16.19",
+    "@vuepress/bundler-vite": "2.0.0-rc.19",
+    "@vuepress/plugin-docsearch": "2.0.0-rc.73",
+    "@vuepress/plugin-pwa": "2.0.0-rc.73",
+    "katex": "^0.16.21",
     "vue": "^3.5.13",
-    "vuepress": "2.0.0-rc.13",
-    "vuepress-theme-hope": "2.0.0-rc.48"
+    "vuepress": "2.0.0-rc.19",
+    "vuepress-theme-hope": "2.0.0-rc.70"
   },
-  "packageManager": "pnpm@9.3.0+sha512.ee7b93e0c2bd11409c6424f92b866f31d3ea1bef5fbe47d3c7500cdc3c9668833d2e55681ad66df5b640c61fa9dc25d546efa54d76d7f8bf54b13614ac293631"
+  "packageManager": "pnpm@9.15.3+sha512.1f79bc245a66eb0b07c5d4d83131240774642caaa86ef7d0434ab47c0d16f66b04e21e0c086eb61e62c77efc4d7f7ec071afad3796af64892fae66509173893a"
 }
