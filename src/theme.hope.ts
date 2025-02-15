@@ -26,7 +26,7 @@ export default hopeTheme(
 
     // 博客相关
     blog: {
-      description: "主包不知道在写些什么。",
+      description: "毫无“创见”的“创作”者。",
       // intro: "/intro.html",
       medias: {
         BiliBili: "https://space.bilibili.com/301413212",
