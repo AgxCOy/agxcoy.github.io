@@ -28,8 +28,20 @@ export default defineUserConfig({
     [
       "link",
       {
-        href: "https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200..900&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400..700&display=swap",
+        as: "font",
+        crossorigin: "",
+      },
+    ],
+    [
+      "link",
+      {
+        href: "https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400..700&display=swap",
         rel: "stylesheet",
+        as: "font",
+        crossorigin: "",
+        media: "print",
+        onload: "this.media='all'",
       },
     ],
   ],
