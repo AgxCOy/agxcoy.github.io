@@ -63,20 +63,20 @@ Bottles 是由 [bottlesdevs](https://github.com/bottlesdevs) 开发的可视化 
 > [!note]
 > 我的系统语言是英文，中文翻译仅供参考。
 
-- 名称（Name）：自拟（为便于说明，后面用`$venv`表示）；
-- 环境（Environment）：建议选自定义（Custom）。
+- 名称`Name`：自拟（为便于说明，后面用`$venv`表示）；
+- 环境`Environment`：建议选自定义`Custom`。
 
-> 应用程序（Application）和游戏（Gaming）这两个预设，初次新建 Bottle 时会下载巨量的依赖。
+> 应用程序`Application`和游戏`Gaming`这两个预设，初次新建 Bottle 时会下载巨量的依赖。
 > 如果你网不是特别好，也没走代理，直接“自定义”就可以了。
 
-- 打开共享用户目录（Share User Directory）选项
-- 兼容层，或者说运行器（Runner）选`soda-9.0-1`（以最新版为准）
+- 打开共享用户目录`Share User Directory`选项
+- 兼容层，或者说运行器`Runner`选择 soda-9.0-1（以最新版为准）
 
 > 如果你选了预设，这里是改不了兼容层的，得等创建好 Bottle 之后进设置再改。
 
 > 此外，cn 源的 Bottles 使用系统中装的原生 Wine。在文章开头我就强调过原生 Wine 已不适用红红。所以务必换用别的。
 
-- Bottle 目录（Bottle Directory）可改可不改（为便于说明，后面用`$bottles`表示）。
+- Bottle 目录`Bottle Directory`可改可不改（为便于说明，后面用`$bottles`表示）。
 
 > 默认你的环境位于`~/.local/share/bottles/bottles`目录下。
 
@@ -88,25 +88,21 @@ Bottles 是由 [bottlesdevs](https://github.com/bottlesdevs) 开发的可视化 
 然后在右上角点击“创建”即可。
 
 > [!note]
-> 在 Linux 中，`~`和`$HOME`^①^通常指代`/home/<user_id>`，比如`/home/chloridep`。
-> 类比下 Win7 的`%UserProfile%`和`C:\Users\chloridep`就知道了。
+> 在 Linux 中，`~`和`$HOME`通常指代`/home/<user_id>` [^home_dir]，比如`/home/nyacl`。
+> 类比下 Win7 的`%UserProfile%`和`C:\Users\nyacl`就知道了。
 > 
-> ---
-> 
-> ① Linux 的路径是**区分大小写**的，终端里的环境变量（通常全大写）也是。
-> ::: center
-> YURI.exe &ne; yuri.EXE；$HOME &ne; $home
-> :::
+> [^home_dir]: Linux 的路径是**区分大小写**的，终端里的环境变量（通常全大写）也是。  
+> 即`YURI.exe` &ne; `yuri.EXE`；`$HOME` &ne; `$home`。
 
 ### 2.2 Bottle 选项
 
-点击刚建好的 Bottle 进入详情页，点开设置（Settings）：
+点击刚建好的 Bottle 进入详情页，点开设置`Settings`：
 
-1. 需要开启 DirectX 翻译——将组件（Components）部分的 DXVK 和 VKD3D 打开；
-2. 可以考虑在显示（Display）部分启用独立显卡（Discrete Graphics，我的笔记本没有捏）；
-3. 性能（Performance）部分的同步（Synchronization）可以考虑 Fsync，除此之外的选项建议不动；
+1. 需要开启 DirectX 翻译——将组件`Components`部分的 DXVK 和 VKD3D 打开；
+2. 可以考虑在显示`Display`部分启用独立显卡`Discrete Graphics`（我的笔记本没有捏）；
+3. 性能`Performance`部分的同步`Synchronization`可以考虑 Fsync，除此之外的选项建议不动；
 
-做完设置，退回上一页把依赖（Dependencies）装上：
+做完设置，退回上一页把依赖`Dependencies`装上：
 
 ::: tip 红警 2 推荐依赖
 
@@ -154,7 +150,34 @@ unzip -O GBK -o '~/Documents/0.6.2 离线更新包.zip' -d '~/Documents/Extreme 
 > [!tip]
 > 在“选择可执行文件”对话框中，若找不到 exe，请在“过滤”那里改为`Supported Executables`。
 
-## 四、开玩
+## 四、渲染补丁
+我们知道，红警 2 是个 Windows 游戏，但众所周知，由于系统调用的不同，Windows 程序无法直接在 Linux 上跑，这点对于“渲染补丁”也是一样。
+所以客户端设置也好，玩家自备`ddraw.dll`也罢，**均无法在 Wine 里使用**。
+
+### 4.1 游戏本体
+可能你会有疑问：前面不是让装`cnc-ddraw`了吗？怎么又有问题捏？因为文中的 Bottles 以及用于原生 Wine 的 Winetricks 均只提供这个。换言之，你基本上**只有`cnc-ddraw`类补丁可以选**。
+
+除此之外，Bottle 容器与 Windows 类似，**默认从游戏目录（即“内建`Builtin`”）加载 DLL**。所以，还需要调整`ddraw.dll`加载次序。  
+- 找到 Bottle 详情的“工具”一栏；
+- 点开`Legacy Wine Tools`找到`Configuration`，打开`winecfg`。
+- 选中函数库`Libraries`页面，在列表中选中`ddraw`，点击编辑`Edit`；  
+  若找不到，**先**在上面的输入框里手打`ddraw.dll`，点击添加`Add`。
+- 在弹出的 5 个选项中，选择**原装`Native` (Windows)**。
+
+而对于 Reshade，国内有一些 Reshade 会伪装成`d3d*.dll`。由于上面提到的默认规则，这种 Reshade 实际仍能配合`ddraw.dll`运作，在游戏中显示出 Reshade 版本提示。当然具体特效显示成什么样就未经细致测试了。
+
+### 4.2 FA2 及其扩展（FA2sp 等）
+开篇提到，我还有做地图的需求。
+
+目前圈子里所谓“FA2 防卡补丁”实际是 DxWnd，它仍会加载系统目录的`ddraw.dll`。那么对本随记而言，便只需讨论“原装”的 DDraw。经过测试，刚建好的 Wine 环境其`ddraw.dll`恰可以为 FA2 所用。
+
+> 原生 9.16-1 那版对我来说刚好，但是无视缩放比；  
+> 9.17-1 及往后的新版本则会因屏幕缩放有一些拉扯感，不知高分屏用户觉得如何。  
+> Proton 等 Wine 改版的表现与 9.16-1 一致。推测是并未跟进最新版本。
+
+那需要做的就很简单了：**另起一个 Bottle 跑地编**。或者，在`cnc-ddraw`安装之前先提取出`$venv/drive_c/windows/System32`（也可能是`SysWOW64`，如果有的话）里面的`ddraw.dll`，**覆盖 DxWnd**。
+
+## 五、开玩
 
 在做完全部配置之后，点击你建过的快捷方式右边的`▶`图标，开耍。……虽然，读条可能会比较慢。
 

@@ -240,7 +240,7 @@ EXPORT_FUNC(funcname)
 ```
 
 更详细的介绍可以翻 Zero Fanker 的 Ares Wiki。这里只需要知道，写 Hook 靠`DEFINE_HOOK`准没错。  
-然后解释一下这个宏要补的三个参数：
+然后解释一下`DEFINE_HOOK`这个宏要补的三个参数：
 
 - `hook`：即你要灌注（覆盖）的地址。
 

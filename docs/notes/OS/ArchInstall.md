@@ -362,7 +362,7 @@ pinentry-program /usr/bin/pinentry-qt
 ```
 保存后重启`gpg-agent`：`gpg-connect-agent reloadagent /bye`。
 
-~~虽然这么搞反倒在 SSH 上用不了了，但我平时还是用 KDE 图形界面比较多。~~ 经测试，SSH 也可正常调出 CUI，放心改就是了（
+经测试，SSH 也可正常调出 CUI，放心改就是了（
 
 ### II. GPG 密钥备份（导出导入）
 之前并没有意识到备份 key 的重要性，结果重装 Arch 重新配置提交签名时，
