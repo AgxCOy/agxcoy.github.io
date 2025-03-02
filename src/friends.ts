@@ -18,6 +18,12 @@ const friends: ThemeBlogHomeProjectOptions[] = [
     icon: 'https://q.qlogo.cn/g?b=qq&nk=2751454815&s=640',
     desc: 'Redrock 后端人员，主要维护轻雪的相关项目，时不时在 MC 里整活。非常厉害。',
     link: 'https://sfkm.me/'
+  },
+  {
+    name: 'Twisuki 苏阳',
+    icon: 'https://github.com/Twisuki.png',
+    desc: '一只喜欢到处贴贴的猫',
+    link: 'https://twisuki.github.io'
   }
 ]
 export default friends
