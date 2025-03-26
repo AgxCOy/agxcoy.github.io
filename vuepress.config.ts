@@ -5,8 +5,8 @@ export default defineUserConfig({
   base: "/",
 
   lang: "zh-CN",
-  title: "氯喵の笔记本",
-  description: "拾人牙慧，毫无创见。",
+  title: "SilverAg.L",
+  description: "his personal blogs",
 
   temp: ".temp",
   cache: ".cache",

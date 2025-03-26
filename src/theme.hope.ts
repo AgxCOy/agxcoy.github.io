@@ -4,15 +4,15 @@ import sidebar from "./sidebar.js";
 
 export default hopeTheme(
   {
-    hostname: "https://nyacl.shimakaze.org",
+    hostname: "https://agxcoy.shimakaze.org",
 
     author: {
-      name: "NyaCl",
-      url: "https://github.com/NyaCl",
+      name: "SilverAg.L",
+      url: "https://github.com/AgxCOy",
     },
     logo: "/assets/images/avatar.webp",
 
-    repo: "NyaCl/nyacl.github.io",
+    repo: "AgxCOy/blogs",
 
     docsDir: "docs",
 
@@ -21,18 +21,18 @@ export default hopeTheme(
     // 侧边栏
     sidebar,
     // 页脚
-    footer: "氯离子实验室 出品",
+    footer: "喵？……嗯哼♡",
     displayFooter: true,
 
     // 博客相关
     blog: {
-      description: "毫无「创见」的「创作」者。",
+      description: "希望你我都能……“玩”得尽兴♡",
       // intro: "/intro.html",
       medias: {
         BiliBili: "https://space.bilibili.com/301413212",
         Email: "mailto:caclx@outlook.com",
-        GitHub: "https://github.com/ChlorideP",
-        Steam: "https://steamcommunity.com/id/kariko_lin/",
+        GitHub: "https://github.com/AgxCOy",
+        Steam: "https://steamcommunity.com/id/silveraglin/",
       },
     },
 
@@ -98,15 +98,16 @@ export default hopeTheme(
         assets: "fontawesome-with-brands"
       },
 
-      docsearch: {
-        apiKey: 'f07a8ff56a04a28b21d779ea8b679092',
-        appId: 'LT11FBEODD',
-        indexName: 'nyacl-shimakaze'
-      },
+      // temporally disabled
+      // docsearch: {
+      //   apiKey: 'f07a8ff56a04a28b21d779ea8b679092',
+      //   appId: 'LT11FBEODD',
+      //   indexName: 'nyacl-shimakaze'
+      // },
 
       comment: {
         provider: "Giscus",
-        repo: "NyaCl/nyacl.github.io",
+        repo: "AgxCOy/blogs",
         repoId: "R_kgDOMJzkvA",
         category: "Announcements",
         categoryId: "DIC_kwDOMJzkvM4CmIsK"
