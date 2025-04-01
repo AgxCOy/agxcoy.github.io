@@ -98,12 +98,11 @@ export default hopeTheme(
         assets: "fontawesome-with-brands"
       },
 
-      // temporally disabled
-      // docsearch: {
-      //   apiKey: 'f07a8ff56a04a28b21d779ea8b679092',
-      //   appId: 'LT11FBEODD',
-      //   indexName: 'nyacl-shimakaze'
-      // },
+      docsearch: {
+        apiKey: '665b95419abc56fb78211160bc331a81',
+        appId: 'JDO4FJXBV7',
+        indexName: 'agxcoy-shimakaze'
+      },
 
       comment: {
         provider: "Giscus",
