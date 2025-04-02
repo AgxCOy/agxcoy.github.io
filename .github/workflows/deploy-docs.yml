@@ -17,6 +17,10 @@ on:
 
 permissions:
   contents: write
+  statuses: write
+
+env:
+  MELI_SITE: b9bc0b87-f062-4724-b2f5-55866ff12736
 
 jobs:
   build:
@@ -54,29 +58,13 @@ jobs:
           pnpm run docs:build
           > dist/.nojekyll
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: 'dist'
-
-  deploy:
-    # Add a dependency to the build job
-    needs: build
-
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write # to deploy to Pages
-      id-token: write # to verify the deployment originates from an appropriate source
-
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    # Specify runner + deployment step
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: publish
+        run: |
+          npx -p "@getmeli/cli" meli upload ./dist \
+            --url "https://pages.liteyuki.icu" \
+            --site "$MELI_SITE" \
+            --token "$MELI_TOKEN" \
+            --release "$GITHUB_SHA"
+        env:
+          MELI_TOKEN: ${{ secrets.MELI_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
